@@ -21,7 +21,9 @@ RUN apt install -y \
     texinfo \
     autoconf \
     adwaita-icon-theme-full \
-    libwebkit2gtk-4.0-dev
+    libwebkit2gtk-4.0-dev \
+    checkinstall \
+    porg
 
 # clone
 RUN cd /tmp \
@@ -37,7 +39,7 @@ RUN cd /tmp/emacs \
     && make install
 
 # cleanup
-RUN rm -rf /tmp/emacs
+# RUN rm -rf /tmp/emacs
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
