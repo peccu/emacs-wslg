@@ -1,12 +1,13 @@
 FROM peccu/emacs-wslg:latest as built
 
 RUN cd /tmp/emacs \
-  && checkinstall --pkgversion=29 -y
+&& hash -r \
+  && checkinstall --pkgname=emacs-wslg --pkgversion=29 -y
 
 FROM ubuntu:22.04
 
 COPY --from=built /tmp/emacs/src/emacs /usr/local/bin
-COPY --from=built /tmp/emacs/emacs_29-1_arm64.deb
+COPY --from=built /tmp/emacs/emacs-wslg_29-1_arm64.deb /tmp/emacs/emacs-wslg_29-1_arm64.deb
 
 # COPY --from=built /tmp/emacs /tmp/emacs
 
