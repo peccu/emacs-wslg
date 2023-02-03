@@ -28,13 +28,13 @@ RUN apt install -y \
 # clone
 RUN cd /tmp \
     && git clone --single-branch \
-	   --branch emacs-29 \
-	   https://github.com/emacs-mirror/emacs.git
+    --branch emacs-29 \
+    https://github.com/emacs-mirror/emacs.git
 RUN cd /tmp/emacs \
     && ./autogen.sh \
     && ./configure \
-	   --with-pgtk \
-	   --with-xwidgets \
+        --with-pgtk \
+        --with-xwidgets \
     && make -j8 \
     && porg -lp emacs-wslg -- make install \
     && checkinstall --pkgname=emacs-wslg --pkgversion=29 --install=no -y
