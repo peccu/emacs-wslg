@@ -36,7 +36,8 @@ RUN cd /tmp/emacs \
 	   --with-pgtk \
 	   --with-xwidgets \
     && make -j8 \
-    && make install
+    && porg -lp emacs-wslg -- make install \
+    && checkinstall --pkgname=emacs-wslg --pkgversion=29 --install=no -y
 
 # cleanup
 # RUN rm -rf /tmp/emacs
