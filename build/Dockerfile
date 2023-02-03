@@ -1,7 +1,9 @@
 FROM ubuntu:22.04 as build
 
+RUN apt-get update -y
+
 # install dependencies
-RUN apt install -y \
+RUN apt-get install -y \
     git \
     build-essential \
     libgtk-3-dev \
