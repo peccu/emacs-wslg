@@ -1,10 +1,4 @@
-FROM ubuntu:22.04
-# install Takao font
-RUN apt update -y
-RUN apt install -y \
-    fontconfig \
-    fonts-takao \
-    && fc-cache -fv
+FROM ubuntu:22.04 as build
 
 # install dependencies
 RUN apt install -y \
@@ -28,23 +22,43 @@ RUN apt install -y \
 # clone
 RUN cd /tmp \
     && git clone --single-branch \
-	   --branch emacs-29 \
-	   https://github.com/emacs-mirror/emacs.git
+    --branch emacs-29 \
+    https://github.com/emacs-mirror/emacs.git
 RUN cd /tmp/emacs \
     && ./autogen.sh \
     && ./configure \
-	   --with-pgtk \
-	   --with-xwidgets \
+        --with-pgtk \
+        --with-xwidgets \
     && make -j8 \
-    && make install
+    && porg -lp emacs-wslg -- make install \
+    && checkinstall --pkgname=emacs-wslg --pkgversion=29 --install=no -y
 
 # cleanup
 # RUN rm -rf /tmp/emacs
 
+FROM ubuntu:22.04
+
+RUN apt-get update -y
+
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
-RUN apt install -y mesa-utils
+RUN apt-get install -y mesa-utils
 # CMD /usr/bin/glxinfo -B
+
+RUN apt-get install -y \
+    libgtk-3-0 \
+    libgif7 \
+    libwebkit2gtk-4.0-37
+
+# install Takao font
+RUN apt-get install -y \
+    fontconfig \
+    fonts-takao \
+    && fc-cache -fv
+
+COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
+RUN dpkg -i /tmp/emacs/emacs-wslg_29-1_amd64.deb \
+    && rm -rf /tmp/emacs
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]
