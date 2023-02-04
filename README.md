@@ -71,3 +71,4 @@ Based version is Emacs 29 (emacs-29 branch from emacs mirror git repo).
   - change CMD or ENTRYPOINT into emacs server
 - [ ] more emacs versions 
 - [ ] script sample
+- [ ] test host dependencies
