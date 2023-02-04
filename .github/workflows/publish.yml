@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - buildenv
   release:
     types: [published]
 
