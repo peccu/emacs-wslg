@@ -33,19 +33,19 @@ RUN cd /tmp/emacs \
     && make -j8 \
     && checkinstall --pkgname=emacs-wslg --pkgversion=29 --install=no -y
 
-FROM ubuntu:22.04
+# FROM ubuntu:22.04
 
-RUN apt-get update -y
+# RUN apt-get update -y
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 RUN apt-get install -y mesa-utils
 # CMD /usr/bin/glxinfo -B
 
-RUN apt-get install -y \
-    libgtk-3-0 \
-    libgif7 \
-    libwebkit2gtk-4.0-37
+# RUN apt-get install -y \
+#     libgtk-3-0 \
+#     libgif7 \
+#     libwebkit2gtk-4.0-37
 
 # install Takao font
 RUN apt-get install -y \
@@ -53,9 +53,9 @@ RUN apt-get install -y \
     fonts-takao \
     && fc-cache -fv
 
-COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
-RUN dpkg -i /tmp/emacs/emacs-wslg_29-1_amd64.deb \
-    && rm -rf /tmp/emacs
+# COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
+RUN dpkg -i /tmp/emacs/emacs-wslg_29-1_amd64.deb
+    # && rm -rf /tmp/emacs
 
 STOPSIGNAL SIGKILL
 VOLUME ["/root"]
