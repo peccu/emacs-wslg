@@ -19,9 +19,6 @@ RUN apt-get install -y \
     adwaita-icon-theme-full \
     libwebkit2gtk-4.0-dev \
     checkinstall
-# porg -lp emacs-wslg -- make install
-# porg -f emacs-wslg
-# ls /var/lib/porg/emacs-wslg...?
 
 # clone
 RUN cd /tmp \
@@ -41,6 +38,7 @@ RUN cd /tmp/emacs \
         --install=no
 # porg -lp emacs-wslg --make install
 # porg -f emacs-wslg
+# ls /var/lib/porg/emacs-wslg...?
 
 FROM ubuntu:22.04
 
@@ -63,7 +61,7 @@ RUN apt-get install -y \
     && fc-cache -fv
 
 COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
-# RUN apt install /tmp/emacs/emacs-wslg_29-1_amd64.deb
+# RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
     # && rm -rf /tmp/emacs
 
 STOPSIGNAL SIGKILL
