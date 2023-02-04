@@ -31,7 +31,7 @@ RUN cd /tmp/emacs \
         --with-pgtk \
         --with-xwidgets \
     && make -j8 \
-    && checkinstall-y \
+    && checkinstall -y \
         --pkgname=emacs-wslg \
         --pkgversion=29 \
         --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
