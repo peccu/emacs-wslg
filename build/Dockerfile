@@ -31,7 +31,13 @@ RUN cd /tmp/emacs \
         --with-pgtk \
         --with-xwidgets \
     && make -j8 \
-    && checkinstall --pkgname=emacs-wslg --pkgversion=29 --install=no -y
+    && checkinstall -y \
+        --pkgname=emacs-wslg \
+        --pkgversion=29 \
+        --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
+        --install=no
+# porg -lp emacs-wslg --make install
+# porg -f emacs-wslg
 
 FROM ubuntu:22.04
 
@@ -42,10 +48,11 @@ ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 RUN apt-get install -y mesa-utils
 # CMD /usr/bin/glxinfo -B
 
-RUN apt-get install -y \
-    libgtk-3-0 \
-    libgif7 \
-    libwebkit2gtk-4.0-37
+# these packages will be installed via deb's dependencies
+# RUN apt-get install -y \
+#     libgtk-3-0 \
+#     libgif7 \
+#     libwebkit2gtk-4.0-37
 
 # install Takao font
 RUN apt-get install -y \
@@ -54,7 +61,7 @@ RUN apt-get install -y \
     && fc-cache -fv
 
 COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
-RUN dpkg -i /tmp/emacs/emacs-wslg_29-1_amd64.deb \
+RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb \
     && rm -rf /tmp/emacs
 
 STOPSIGNAL SIGKILL
