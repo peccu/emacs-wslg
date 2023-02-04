@@ -18,8 +18,7 @@ RUN apt-get install -y \
     autoconf \
     adwaita-icon-theme-full \
     libwebkit2gtk-4.0-dev \
-    checkinstall \
-    porg
+    checkinstall
 
 # clone
 RUN cd /tmp \
@@ -32,11 +31,7 @@ RUN cd /tmp/emacs \
         --with-pgtk \
         --with-xwidgets \
     && make -j8 \
-    && porg -lp emacs-wslg -- make install \
     && checkinstall --pkgname=emacs-wslg --pkgversion=29 --install=no -y
-
-# cleanup
-# RUN rm -rf /tmp/emacs
 
 FROM ubuntu:22.04
 
