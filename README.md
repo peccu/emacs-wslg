@@ -19,6 +19,10 @@ launch emacs container with mounts and environments for WSLg.
 
 This sample additionally mounts home directory into `/root`.
 
+- reuse container
+
+run with `sleep infinity`
+
 ```bash
 docker run \
        --rm \
@@ -34,10 +38,28 @@ docker run \
        peccu/wslg-emacs:latest
 ```
 
-run emacs in it.
+and exec emacs in it.
 
 ```bash
 docker exec -it emacs emacs &
+```
+
+- launch container each time
+
+```bash
+docker run \
+       --rm \
+       --name emacs \
+       -it \
+       --entrypoint emacs \
+       -v ~:/root \
+       -v /tmp/.X11-unix:/tmp/.X11-unix \
+       -v /mnt/wslg:/mnt/wslg \
+       -e DISPLAY \
+       -e WAYLAND_DISPLAY \
+       -e XDG_RUNTIME_DIR \
+       -e PULSE_SERVER \
+       peccu/wslg-emacs:latest
 ```
 
 ## Some info
