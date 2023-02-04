@@ -58,7 +58,8 @@ RUN apt-get install -y \
     && fc-cache -fv
 
 COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
-RUN dpkg -i /tmp/emacs/emacs-wslg_29-1_amd64.deb
+RUN dpkg -i /tmp/emacs/emacs-wslg_29-1_amd64.deb \
+    || apt-get -f install
     # && rm -rf /tmp/emacs
 
 STOPSIGNAL SIGKILL
