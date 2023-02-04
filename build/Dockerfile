@@ -38,7 +38,7 @@ RUN cd /tmp/emacs \
         --install=no
 # porg -lp emacs-wslg --make install
 # porg -f emacs-wslg
-# ls /var/lib/porg/emacs-wslg...?
+# ls /var/lib/porg/emacs-wslg
 
 FROM ubuntu:22.04
 
