@@ -25,13 +25,14 @@ jobs:
             ${{ github.repository }}
             ghcr.io/${{ github.repository }}
 
-      - name: Build Docker images
+      - name: Build Docker images for debian
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: build
           push: false
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:latest
-          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build Docker images for centos
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: cent
+          push: false
