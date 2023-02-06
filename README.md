@@ -8,10 +8,6 @@ This docker image can launch emacs with GUI and xwidget.
 
 - WSL2
 - Ubuntu 22.04
-- some packages in host ubuntu (not tested)
-  - `libgtk-3-0`
-  - `libgif7`
-  - `libwebkit2gtk-4.0-37`
 
 ## Usage
 
@@ -129,6 +125,7 @@ Based version is Emacs 29 (emacs-29 branch from emacs mirror git repo).
   - change CMD or ENTRYPOINT into emacs server
 - [ ] more emacs versions
 - [x] script sample
-- [ ] test host dependencies
+- [x] test host dependencies
+  - emacs can run without runtime libs like libgtk
 - [ ] change user in container from root to user
 
