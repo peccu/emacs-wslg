@@ -59,6 +59,8 @@ RUN cd /tmp \
         && yum install -y checkinstall-1.6.2-1.x86_64.rpm \
         && cd /usr/local/lib64 \
         && ln -s ../lib/installwatch.so \
+        && echo "/usr/local/lib64" > /etc/ld.so.conf.d/installwatch.conf \
+        && ldconfig \
         && rpmdev-setuptree
 
 # build emacs
