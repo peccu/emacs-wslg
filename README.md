@@ -69,14 +69,15 @@ docker run \
 #!/bin/bash
 # -*- shell-script -*-
 
-# automatically mounts pwd into /app
+# automatically mounts / into /mnt/host
+# workdir is corresponds directory in /mnt/host
 docker run \
        --rm \
        --name emacs-wslg \
        -it \
        --entrypoint emacs \
-       -v $(pwd):/app \
-       -w /app \
+       -v /:/mnt/host \
+       -w "$(pwd | sed 's:^/:/mnt/host/:')" \
        -v ~:/root \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v /mnt/wslg:/mnt/wslg \
@@ -91,18 +92,15 @@ docker run \
     - copy [`emacs-wslg_docker-compose.sh`](./emacs-wslg_docker-compose.sh) into `/usr/local/bin/emacs-wslg`
     - add execute permission `sudo chmod +x /usr/local/bin/emacs-wslg`
     - change docker-compose.yml path in the file
-    - this script cannot mount current working directory
+    - host's root dir (`/`) is mounted in `/mnt/host`
 ```sh
 #!/bin/bash
 # -*- shell-script -*-
-# This script's limitation.
-# - can't access to the directories not mounted in docker-compose.yml
+# automatically mounts / into /mnt/host
+# workdir is corresponds directory in /mnt/host
 
 # docker-compose.yml's path
 COMPOSE_FILE_PATH=~/Codes/emacs-wslg/docker-compose.yml
-
-# defined as default container name in above docker-compose.yml
-CONTAINER_NAME=emacs-wslg
 
 function docker_compose_up-d(){
     docker compose \
@@ -113,8 +111,8 @@ function docker_compose_up-d(){
 function docker_exec(){
     docker exec \
            -it \
-           -w "$(pwd | sed 's:'$HOME':/root:')" \
-           ${CONTAINER_NAME} \
+           -w "$(pwd | sed 's:^/:/mnt/host/:')" \
+           emacs-wslg \
            /usr/local/bin/emacs "$@"
 }
 

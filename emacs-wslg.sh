@@ -1,14 +1,15 @@
 #!/bin/bash
 # -*- shell-script -*-
 
-# automatically mounts pwd into /app
+# automatically mounts / into /mnt/host
+# workdir is corresponds directory in /mnt/host
 docker run \
        --rm \
        --name emacs-wslg \
        -it \
        --entrypoint emacs \
-       -v $(pwd):/app \
-       -w /app \
+       -v /:/mnt/host \
+       -w "$(pwd | sed 's:^/:/mnt/host/:')" \
        -v ~:/root \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v /mnt/wslg:/mnt/wslg \
