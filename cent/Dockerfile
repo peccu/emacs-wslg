@@ -9,6 +9,7 @@ RUN yum install -y \
         which \
         rpm-build \
         rpmdevtools
+# https://topic.alibabacloud.com/a/centos-method-of-using-checkinstall-to-make-rpm-package_1_18_20056714.html
 # setup rpmbuild
 RUN rpmdev-setuptree
 
@@ -53,16 +54,6 @@ RUN yum install -y \
         sqlite-devel \
         librsvg2-devel
 
-# setup checkinstall
-COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
-RUN cd /tmp \
-        && yum install -y checkinstall-1.6.2-1.x86_64.rpm \
-        && cd /usr/local/lib64 \
-        && ln -s ../lib/installwatch.so \
-        && echo "/usr/local/lib64" > /etc/ld.so.conf.d/installwatch.conf \
-        && ldconfig \
-        && rpmdev-setuptree
-
 # build emacs
 RUN cd /tmp/emacs \
         && ./autogen.sh \
@@ -71,8 +62,19 @@ RUN cd /tmp/emacs \
         --with-xwidgets \
         && make -j$(nproc) \
         && make install
+
+# setup checkinstall
+COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
+RUN cd /tmp \
+        && yum install -y checkinstall-1.6.2-1.x86_64.rpm \
+        && cd /usr/local/lib64 \
+        && echo "/usr/local/lib64" > /etc/ld.so.conf.d/installwatch.conf \
+        && ldconfig \
+        && ln -s ../lib/installwatch.so \
+        && rpmdev-setuptree
 RUN cd /tmp/emacs \
         && checkinstall -y \
+        --type=rpm \
         --pkgname=emacs-wslg \
         --pkgversion=29 \
         --install=no \
