@@ -2,7 +2,8 @@ version: '3'
 services:
   app:
     # build: build
-    image: peccu/wslg-emacs:latest
+    image: peccu/emacs-wslg:latest
+    container_name: emacs-wslg
     environment:
       # X11
       - DISPLAY
@@ -12,8 +13,8 @@ services:
       # PulseAudio
       - PULSE_SERVER
     volumes:
-      # - ~:/root
-      - /clip:/clip
+      - ~:/root
+      # - /clip:/clip
       # X11
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Wayland and PulseAudio
@@ -28,7 +29,7 @@ services:
 # docker-compose exec app /usr/local/bin/emacs
 
 # or without docker-compose
-# docker build . -t peccu/wslg-emacs:latest
+# docker build . -t peccu/emacs-wslg:latest
 # docker run \
 #        --rm \
 #        --name emacs \
@@ -42,6 +43,5 @@ services:
 #        -e XDG_RUNTIME_DIR \
 #        -e PULSE_SERVER \
 #        --entrypoint "/usr/bin/sleep infinity" \
-#        peccu/wslg-emacs:latest
+#        peccu/emacs-wslg:latest
 # docker exec -it emacs emacs
-
