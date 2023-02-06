@@ -36,14 +36,15 @@ RUN cd /tmp/emacs \
         --pkgversion=29 \
         --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
         --install=no
-# create rpm packages too
-RUN cd /tmp/emacs \
-    && checkinstall -y \
-        --type=rpm \
-        --pkgname=emacs-wslg \
-        --pkgversion=29 \
-        --install=no
-RUN cd /tmp/emacs && ls
+# not supported in debian (requires rpm)
+# # create rpm packages too
+# RUN cd /tmp/emacs \
+#     && checkinstall -y \
+#         --type=rpm \
+#         --pkgname=emacs-wslg \
+#         --pkgversion=29 \
+#         --install=no
+# RUN cd /tmp/emacs && ls
         # --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
 # porg -lp emacs-wslg --make install
 # porg -f emacs-wslg
@@ -71,7 +72,7 @@ RUN apt-get install -y \
     && fc-cache -fv
 
 COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
-COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs/
+# COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs/
 RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
 
 STOPSIGNAL SIGKILL
