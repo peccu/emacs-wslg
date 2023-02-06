@@ -62,6 +62,27 @@ docker run \
        peccu/wslg-emacs:latest
 ```
 
+- bash script (save as `/usr/local/bin/emacs-wslg` and add execute permission)
+
+```sh
+#!/bin/bash
+# -*- shell-script -*-
+docker run \
+       --rm \
+       --name emacs \
+       -it \
+       --entrypoint emacs \
+       -v ~:/root \
+       -v /tmp/.X11-unix:/tmp/.X11-unix \
+       -v /mnt/wslg:/mnt/wslg \
+       -e DISPLAY \
+       -e WAYLAND_DISPLAY \
+       -e XDG_RUNTIME_DIR \
+       -e PULSE_SERVER \
+       peccu/wslg-emacs:latest \
+       "$@"
+```
+
 ## Some info
 
 Based version is Emacs 29 (emacs-29 branch from emacs mirror git repo).
