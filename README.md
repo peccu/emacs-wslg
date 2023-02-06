@@ -26,7 +26,7 @@ run with `sleep infinity`
 ```bash
 docker run \
        --rm \
-       --name emacs \
+       --name emacs-wslg \
        -d \
        -v ~:/root \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -35,7 +35,7 @@ docker run \
        -e WAYLAND_DISPLAY \
        -e XDG_RUNTIME_DIR \
        -e PULSE_SERVER \
-       peccu/wslg-emacs:latest
+       peccu/emacs-wslg:latest
 ```
 
 and exec emacs in it.
@@ -49,7 +49,7 @@ docker exec -it emacs emacs &
 ```bash
 docker run \
        --rm \
-       --name emacs \
+       --name emacs-wslg \
        -it \
        --entrypoint emacs \
        -v ~:/root \
@@ -59,7 +59,7 @@ docker run \
        -e WAYLAND_DISPLAY \
        -e XDG_RUNTIME_DIR \
        -e PULSE_SERVER \
-       peccu/wslg-emacs:latest
+       peccu/emacs-wslg:latest
 ```
 
 - bash script (save as `/usr/local/bin/emacs-wslg` and add execute permission)
@@ -69,7 +69,7 @@ docker run \
 # -*- shell-script -*-
 docker run \
        --rm \
-       --name emacs \
+       --name emacs-wslg \
        -it \
        --entrypoint emacs \
        -v ~:/root \
@@ -79,7 +79,7 @@ docker run \
        -e WAYLAND_DISPLAY \
        -e XDG_RUNTIME_DIR \
        -e PULSE_SERVER \
-       peccu/wslg-emacs:latest \
+       peccu/emacs-wslg:latest \
        "$@"
 ```
 
