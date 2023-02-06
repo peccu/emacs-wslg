@@ -1,0 +1,107 @@
+FROM centos:7 as checkinstall
+
+# for checkinstall
+RUN yum install -y \
+        patch \
+        make \
+        gcc \
+        gettext \
+        which \
+        rpm-build \
+        rpmdevtools
+# setup rpmbuild
+RUN rpmdev-setuptree
+
+# https://www.patrickmin.com/linux/tip.php?name=checkinstall_fedora_13
+ADD checkinstall.patch /tmp
+RUN cd /tmp \
+        && curl -LO http://checkinstall.izto.org/files/source/checkinstall-1.6.2.tar.gz \
+        && tar xf checkinstall-1.6.2.tar.gz \
+        && patch -p0 < checkinstall.patch \
+        && cd checkinstall-1.6.2 \
+        && make \
+        && make install \
+        && checkinstall -y \
+        --type=rpm \
+        --requires="rpm-build, rpmdevtools, which" \
+        && mv /root/rpmbuild/RPMS/x86_64/checkinstall-1.6.2-1.x86_64.rpm ../
+
+FROM centos:7 as build
+
+RUN yum install -y git-core
+# clone
+RUN cd /tmp \
+    && git clone --single-branch \
+    --branch emacs-29 \
+    https://github.com/emacs-mirror/emacs.git
+
+# for emacs
+RUN yum install -y \
+        autoconf \
+        make \
+        gcc \
+        texinfo \
+        gtk3-devel \
+        webkitgtk4-devel \
+        gnutls-devel \
+        ncurses-devel \
+        libjpeg-turbo-devel \
+        libpng-devel \
+        libXpm-devel \
+        libtiff-devel \
+        giflib-devel \
+        sqlite-devel \
+        librsvg2-devel
+
+# setup checkinstall
+COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
+RUN cd /tmp \
+        && yum install -y checkinstall-1.6.2-1.x86_64.rpm \
+        && cd /usr/local/lib64 \
+        && ln -s ../lib/installwatch.so \
+        && rpmdev-setuptree
+
+# build emacs
+RUN cd /tmp/emacs \
+        && ./autogen.sh \
+        && ./configure \
+        --with-pgtk \
+        --with-xwidgets \
+        && make -j$(nproc) \
+        && make install
+RUN cd /tmp/emacs \
+        && checkinstall -y \
+        --pkgname=emacs-wslg \
+        --pkgversion=29 \
+        --install=no \
+        -- make install
+        # --requires="gtk3, webkitgtk4" \
+RUN cd /tmp/emacs && ls
+
+# FROM centos:7 as runtime
+
+# COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs
+# RUN yum install -y /tmp/emacs/emacs-wslg-29-1.x86_64.rpm
+
+
+# # for vGPU container
+# ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
+# # RUN apt-get install -y mesa-utils
+# # CMD /usr/bin/glxinfo -B
+
+# # these packages will be installed via deb's dependencies
+# # RUN apt-get install -y \
+# #     libgtk-3-0 \
+# #     libgif7 \
+# #     libwebkit2gtk-4.0-37
+
+# # # install Takao font
+# # RUN apt-get install -y \
+# #     fontconfig \
+# #     fonts-takao \
+# #     && fc-cache -fv
+
+# STOPSIGNAL SIGKILL
+# VOLUME ["/root"]
+# WORKDIR /root
+# ENTRYPOINT ["/usr/bin/sleep", "infinity"]

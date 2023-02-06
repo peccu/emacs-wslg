@@ -1,0 +1,221 @@
+diff -ruN checkinstall-1.6.2/checkinstall checkinstall-1.6.2-mod/checkinstall
+--- checkinstall-1.6.2/checkinstall	2009-12-27 04:17:24.000000000 +0900
++++ checkinstall-1.6.2-mod/checkinstall	2023-02-06 22:27:35.794323000 +0900
+@@ -492,7 +492,7 @@
+ ckversion
+ echo
+ 
+-CHECKINSTALLRC=${CHECKINSTALLRC:-${INSTALLDIR}/checkinstallrc}
++CHECKINSTALLRC=${CHECKINSTALLRC:-${INSTALLDIR}/lib/checkinstall/checkinstallrc}
+ if ! [ -f $CHECKINSTALLRC ]; then
+    echog "The checkinstallrc file was not found at:\n$CHECKINSTALLRC"
+    echo
+@@ -1548,7 +1548,7 @@
+ 
+    $INSTALLWATCH --logfile=${TMP_DIR}/newfiles.tmp --exclude="${IEXCLUDE}" \
+    --root=${TMP_DIR} --transl=${TRANSLATE} --backup=${BACKUP} --dbglvl=$DEBUG\
+-   $TMP_SCRIPT &> /${TMP_DIR}/install.log
++   $TMP_SCRIPT &> ${TMP_DIR}/install.log
+ 
+    okfail
+    INSTALL_FAILED=$?
+@@ -1586,7 +1586,7 @@
+ 
+       (echo
+        echogn ' ***************************************************************\n         Installation results. You can find them in\n       %s\n ***************************************************************\n' "${TMP_DIR}/install.log"
+-       cat /${TMP_DIR}/install.log)  | $PAGER
++       cat ${TMP_DIR}/install.log)  | $PAGER
+    fi
+ fi
+ 
+@@ -1635,30 +1635,30 @@
+ 
+ 	# Find regular files first
+ 	[ $DEBUG -gt 0 ] && echo "debug: BASE_TMP_DIR: $BASE_TMP_DIR"
+-	cat /${TMP_DIR}/newfiles.tmp | egrep -v '^[-0-9][0-9]*[[:space:]]*(unlink|access)' | cut -f 3 | egrep -v "^(/dev|$BASE_TMP_DIR|/tmp)" | sort -u > /${TMP_DIR}/newfiles
++	cat ${TMP_DIR}/newfiles.tmp | egrep -v '^[-0-9][0-9]*[[:space:]]*(unlink|access)' | cut -f 3 | egrep -v "^(/dev|$BASE_TMP_DIR|/tmp)" | sort -u > ${TMP_DIR}/newfiles
+ 
+ 	# symlinks are next
+-	cat /${TMP_DIR}/newfiles.tmp | egrep -v '^[-0-9][0-9]*[[:space:]]*(unlink|access)' | cut -f 4 | egrep -v "^(/dev|$BASE_TMP_DIR|/tmp)" | grep -v "#success" | sort -u  >> /${TMP_DIR}/newfiles
++	cat ${TMP_DIR}/newfiles.tmp | egrep -v '^[-0-9][0-9]*[[:space:]]*(unlink|access)' | cut -f 4 | egrep -v "^(/dev|$BASE_TMP_DIR|/tmp)" | grep -v "#success" | sort -u  >> ${TMP_DIR}/newfiles
+         # Create another list of modified files that exclude all files the
+         # install script wanted to create but did not, e.g because they already
+         # existed.
+-        egrep "#success$" /${TMP_DIR}/newfiles.tmp | cut -f 3 | sort -u \
+-            >/${TMP_DIR}/modified
+-        egrep "#success$" /${TMP_DIR}/newfiles.tmp | cut -f 4 \
+-            | egrep -v "#success" | sort -u >> /${TMP_DIR}/modified
++        egrep "#success$" ${TMP_DIR}/newfiles.tmp | cut -f 3 | sort -u \
++            >${TMP_DIR}/modified
++        egrep "#success$" ${TMP_DIR}/newfiles.tmp | cut -f 4 \
++            | egrep -v "#success" | sort -u >> ${TMP_DIR}/modified
+ 
+ 	# OK, now we clean it up a bit
+-	mv /${TMP_DIR}/newfiles.tmp /${TMP_DIR}/newfiles.installwatch
+-	sort -u <  /${TMP_DIR}/newfiles | uniq  | while read file; do
++	mv ${TMP_DIR}/newfiles.tmp ${TMP_DIR}/newfiles.installwatch
++	sort -u <  ${TMP_DIR}/newfiles | uniq  | while read file; do
+ 	   if [ -e "${TRANSLROOT}${file}" ]; then
+-	      echo $file >> /${TMP_DIR}/newfiles.tmp
++	      echo $file >> ${TMP_DIR}/newfiles.tmp
+ 	   else
+ 	      FILE_SYM=`file "${TRANSLROOT}${file}" | grep 'symbolic link'`
+-	      [ "${FILE_SYM}" != "" ] && echo $file >> /${TMP_DIR}/newfiles.tmp
++	      [ "${FILE_SYM}" != "" ] && echo $file >> ${TMP_DIR}/newfiles.tmp
+ 	   fi
+ 	done
+ 
+-	cp /${TMP_DIR}/newfiles.tmp /${TMP_DIR}/newfiles
++	cp ${TMP_DIR}/newfiles.tmp ${TMP_DIR}/newfiles
+ 
+ 	# Don't include anything under the directories specified with "--exclude"
+ 
+@@ -1666,17 +1666,17 @@
+ 
+ 	for exclude in `echo $EXCLUDE | awk '{ split ($0, files,","); for(i=1; files[i] != ""; i++) print files[i];}'`; do
+ 	   if [ -d $exclude ]; then  # If it's a directory, ignore everything below it
+-	      egrep -v "^$exclude" < /${TMP_DIR}/newfiles > /${TMP_DIR}/newfiles.tmp
++	      egrep -v "^$exclude" < ${TMP_DIR}/newfiles > ${TMP_DIR}/newfiles.tmp
+ 	   else
+ 	      if [ -f $exclude ]; then  # If it's a file, ignore just this one
+-		 egrep -v "^$exclude$" < /${TMP_DIR}/newfiles > /${TMP_DIR}/newfiles.tmp
++		 egrep -v "^$exclude$" < ${TMP_DIR}/newfiles > ${TMP_DIR}/newfiles.tmp
+ 	      fi
+ 	   fi
+-	   cp /${TMP_DIR}/newfiles.tmp /${TMP_DIR}/newfiles
++	   cp ${TMP_DIR}/newfiles.tmp ${TMP_DIR}/newfiles
+ 	done
+ 
+ 	# Find files created under /home
+-	grep '^/home' ${TMP_DIR}/newfiles > /${TMP_DIR}/unwanted
++	grep '^/home' ${TMP_DIR}/newfiles > ${TMP_DIR}/unwanted
+ 	if [ $? -eq 0 ]; then
+ 	   echo
+ 	   echog "Some of the files created by the installation are inside the home directory: /home"
+@@ -1694,7 +1694,7 @@
+ 
+ 	## Find any files created in `pwd`. We probably don't want them here
+ 
+-	grep "^`pwd`" ${TMP_DIR}/newfiles > /${TMP_DIR}/unwanted 
++	grep "^`pwd`" ${TMP_DIR}/newfiles > ${TMP_DIR}/unwanted 
+ 	if [ $? = 0 ]; then 
+ 	   echo
+ 	   echog "Some of the files created by the installation are inside the build\ndirectory: %s" "`pwd`"
+@@ -1705,8 +1705,8 @@
+ 	   fi
+ 	   echogn "Should I exclude them from the package? (Saying yes is a good idea) "
+ 	   if  yorn ; then
+-	      grep -v "`pwd`" ${TMP_DIR}/newfiles > /${TMP_DIR}/newfiles.tmp
+-	      mv /${TMP_DIR}/newfiles.tmp /${TMP_DIR}/newfiles
++	      grep -v "`pwd`" ${TMP_DIR}/newfiles > ${TMP_DIR}/newfiles.tmp
++	      mv ${TMP_DIR}/newfiles.tmp ${TMP_DIR}/newfiles
+ 	   fi
+ 	fi
+ 
+@@ -1720,9 +1720,9 @@
+ 	   $VISUAL ${TMP_DIR}/newfiles
+ 
+ 	   # Check if new files were added by the user
+-	   cat /${TMP_DIR}/newfiles | while read file; do 
++	   cat ${TMP_DIR}/newfiles | while read file; do 
+ 	      if ! [ -e "${TRANSLROOT}${file}" ]; then
+-		  copy_dir_hierarchy --deref-parents "${file}" "/" "${BUILD_DIR}" >> /${TMP_DIR}/updated-by-user.log 2>&1
++		  copy_dir_hierarchy --deref-parents "${file}" "/" "${BUILD_DIR}" >> ${TMP_DIR}/updated-by-user.log 2>&1
+ 	      fi
+ 	   done
+ 
+@@ -1737,11 +1737,11 @@
+ 
+ 	cd /
+ 
+-	( cat /${TMP_DIR}/newfiles | while read i; do 
++	( cat ${TMP_DIR}/newfiles | while read i; do 
+ 	      if [ ! -d "${TRANSLROOT}${i}" -o -L "${TRANSLROOT}${i}" ]; then
+ 	      echo ".${i}"
+ 	   fi
+-	done ) > /${TMP_DIR}/newfiles-tar
++	done ) > ${TMP_DIR}/newfiles-tar
+ 
+         # Here it gets tricky: we need to copy all new files to our build dir,
+         # keeping permissions as they are for parents directories as well as for
+@@ -1749,9 +1749,9 @@
+         # dereference them only if they were not modified by the installation
+         # script. 
+         NEWFILES="${TMP_DIR}/modified"
+-        LOGFILE="/${TMP_DIR}/checkinstall.log"
++        LOGFILE="${TMP_DIR}/checkinstall.log"
+ 
+- 	cat /${TMP_DIR}/newfiles-tar | while read file; do
++ 	cat ${TMP_DIR}/newfiles-tar | while read file; do
+             parents=`list_parents ${file} | sed s/^\.//`
+             for p in $parents; do
+             # We have to remove the ./ at the beginning
+@@ -2463,7 +2463,7 @@
+ 
+ echo
+ echogn "Building RPM package..."
+-$RPMBUILD -bb ${RPM_TARGET_FLAG}${ARCHITECTURE} "$SPEC_PATH" &> ${TMP_DIR}/rpmbuild.log
++$RPMBUILD -bb ${RPM_TARGET_FLAG}${ARCHITECTURE} --buildroot $BROOTPATH "$SPEC_PATH" &> ${TMP_DIR}/rpmbuild.log
+ okfail
+ 
+ if [ $? -gt 0 ]; then
+diff -ruN checkinstall-1.6.2/installwatch/installwatch.c checkinstall-1.6.2-mod/installwatch/installwatch.c
+--- checkinstall-1.6.2/installwatch/installwatch.c	2008-11-17 01:20:53.000000000 +0900
++++ checkinstall-1.6.2-mod/installwatch/installwatch.c	2023-02-06 22:28:39.496522100 +0900
+@@ -100,7 +100,7 @@
+ static int (*true_lxstat)(int,const char *,struct stat *);
+ static int (*true_scandir)(	const char *,struct dirent ***,
+ 				int (*)(const struct dirent *),
+-				int (*)(const void *,const void *));
++				int (*)(const struct dirent **,const struct dirent **));
+ static int (*true_symlink)(const char *, const char *);
+ static int (*true_truncate)(const char *, TRUNCATE_T);
+ static int (*true_unlink)(const char *);
+@@ -120,7 +120,7 @@
+ static struct dirent64 *(*true_readdir64)(DIR *dir);
+ static int (*true_scandir64)(	const char *,struct dirent64 ***,
+ 				int (*)(const struct dirent64 *),
+-				int (*)(const void *,const void *));
++				int (*)(const struct dirent64 **,const struct dirent64 **));
+ static int (*true_xstat64)(int,const char *, struct stat64 *);
+ static int (*true_lxstat64)(int,const char *, struct stat64 *);
+ static int (*true_truncate64)(const char *, __off64_t);
+@@ -2938,7 +2938,7 @@
+ 	return result;
+ }
+ 
+-#if (GLIBC_MINOR <= 4)
++#if (0)
+ int readlink(const char *path,char *buf,size_t bufsiz) {
+ 	int result;
+ #else
+@@ -3079,7 +3079,7 @@
+ 
+ int scandir(	const char *dir,struct dirent ***namelist,
+ 		int (*select)(const struct dirent *),
+-		int (*compar)(const void *,const void *)	) {
++		int (*compar)(const struct dirent **,const struct dirent **)	) {
+ 	int result;
+ 
+ 	if (!libc_handle)
+@@ -3691,7 +3691,7 @@
+ 
+ int scandir64(	const char *dir,struct dirent64 ***namelist,
+ 		int (*select)(const struct dirent64 *),
+-		int (*compar)(const void *,const void *)	) {
++		int (*compar)(const struct dirent64 **,const struct dirent64 **)	) {
+ 	int result;
+ 
+ 	if (!libc_handle)
+diff -ruN checkinstall-1.6.2/installwatch/Makefile checkinstall-1.6.2-mod/installwatch/Makefile
+--- checkinstall-1.6.2/installwatch/Makefile	2008-11-17 01:20:53.000000000 +0900
++++ checkinstall-1.6.2-mod/installwatch/Makefile	2023-02-06 22:29:01.322201600 +0900
+@@ -11,7 +11,7 @@
+ VERSION=0.7.0beta7
+ 
+ BINDIR=$(PREFIX)/bin
+-LIBDIR=$(PREFIX)/lib
++LIBDIR=$(PREFIX)/lib64
+ 
+ all: installwatch.so
+ 
