@@ -49,6 +49,7 @@ ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 RUN apt-get install -y mesa-utils
 # CMD /usr/bin/glxinfo -B
 
+# these packages will be installed via deb's dependencies
 # RUN apt-get install -y \
 #     libgtk-3-0 \
 #     libgif7 \
