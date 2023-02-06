@@ -3,6 +3,7 @@ name: Build Docker image (all branch)
 on:
   push:
     branches:
+      - buildenv
   release:
     types: [published]
 
