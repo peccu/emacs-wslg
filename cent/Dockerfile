@@ -82,18 +82,27 @@ RUN cd /tmp/emacs \
         # --requires="gtk3, webkitgtk4" \
 RUN cd /tmp/emacs && ls
 
-# FROM centos:7 as runtime
+FROM centos:7 as runtime
 
+# libEGL warning: DRI2: failed to open swrast (search paths /usr/lib64/dri)
+# EGLDisplay Initialization failed: EGL_NOT_INITIALIZED
+
+COPY --from=build /tmp/emacs/src/emacs /usr/local/bin/
 # COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs
 # RUN yum install -y /tmp/emacs/emacs-wslg-29-1.x86_64.rpm
 
+# for vGPU container
+ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
+# RUN apt-get install -y mesa-utils
+# CMD /usr/bin/glxinfo -B
 
-# # for vGPU container
-# ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
-# # RUN apt-get install -y mesa-utils
-# # CMD /usr/bin/glxinfo -B
+# these packages will be installed via deb's dependencies
+RUN yum install -y \
+        gtk3 \
+        webkitgtk4 \
+        giflib \
+        librsvg2
 
-# # these packages will be installed via deb's dependencies
 # # RUN apt-get install -y \
 # #     libgtk-3-0 \
 # #     libgif7 \
@@ -104,6 +113,13 @@ RUN cd /tmp/emacs && ls
 # #     fontconfig \
 # #     fonts-takao \
 # #     && fc-cache -fv
+RUN yum install -y \
+        fontconfig \
+        ipa-gothic-fonts \
+        ipa-mincho-fonts \
+        ipa-pmincho-fonts \
+        ipa-pgothic-fonts \
+        && fc-cache -fv
 
 # STOPSIGNAL SIGKILL
 # VOLUME ["/root"]
