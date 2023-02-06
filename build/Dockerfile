@@ -43,6 +43,7 @@ RUN cd /tmp/emacs \
         --pkgname=emacs-wslg \
         --pkgversion=29 \
         --install=no
+RUN cd /tmp/emacs && ls
         # --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
 # porg -lp emacs-wslg --make install
 # porg -f emacs-wslg
@@ -69,8 +70,8 @@ RUN apt-get install -y \
     fonts-takao \
     && fc-cache -fv
 
-COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
-COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.rpm /tmp/emacs/emacs-wslg_29-1_amd64.rpm
+COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
+COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs/
 RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
 
 STOPSIGNAL SIGKILL
