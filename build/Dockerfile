@@ -30,7 +30,7 @@ RUN cd /tmp/emacs \
     && ./configure \
         --with-pgtk \
         --with-xwidgets \
-    && make -j8 \
+    && make -j$(nproc) \
     && checkinstall -y \
         --pkgname=emacs-wslg \
         --pkgversion=29 \
