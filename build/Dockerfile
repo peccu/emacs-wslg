@@ -56,13 +56,13 @@ RUN cd /tmp/emacs \
         && echo "==================== built for alien ====================" \
         && ls \
         && echo run alien \
-        && fakeroot alien $(ls emacs-wslg*.deb) \
+        && fakeroot alien --to-rpm $(ls emacs-wslg*.deb) \
         && echo "==================== rpm generated ====================" \
         && ls \
         && echo remove deb \
         && echo $(ls emacs-wslg*.deb) \
         && rm $(ls emacs-wslg*.deb) \
-        && mv ../$(ls ../emacs-wslg*.deb) ./
+        && mv $(ls ../emacs-wslg*.deb) ./
 # not supported in debian (requires rpm)
 # # create rpm packages too
 # RUN cd /tmp/emacs \
