@@ -55,11 +55,11 @@ RUN cd /tmp/emacs \
         --install=no \
         && echo "==================== built for alien ====================" \
         && ls \
-        && echo run alien
+        && echo run alien \
         && fakeroot alien $(ls emacs-wslg*.deb) \
         && echo "==================== rpm generated ====================" \
         && ls \
-        && echo remove deb
+        && echo remove deb \
         && echo $(ls emacs-wslg*.deb) \
         && rm $(ls emacs-wslg*.deb) \
         && mv ../$(ls ../emacs-wslg*.deb) ./
