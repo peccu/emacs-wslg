@@ -36,6 +36,23 @@ RUN cd /tmp/emacs \
         --pkgversion=29 \
         --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
         --install=no
+# build deb for rpm (with alien)
+# requires are for yum package's name
+RUN apt-get install -y alien
+RUN cd /tmp/emacs \
+        && mv ./$(ls emacs-wslg*.deb) ../ \
+        && checkinstall -y \
+        --pkgname=emacs-wslg \
+        --pkgversion=29 \
+        --requires="gtk3, webkitgtk4, giflib, librsvg2" \
+        --install=no \
+        && echo "==================== built for alien ====================" \
+        && ls \
+        && fakeroot alien $(ls emacs-wslg*.deb) \
+        && echo "==================== rpm generated ====================" \
+        && ls \
+        && rm $(ls emacs-wslg*.deb) \
+        && mv ../$(ls emacs-wslg*.deb) ./
 # not supported in debian (requires rpm)
 # # create rpm packages too
 # RUN cd /tmp/emacs \
@@ -72,6 +89,7 @@ RUN apt-get install -y \
     && fc-cache -fv
 
 COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
+COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs/
 # COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs/
 RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
 
