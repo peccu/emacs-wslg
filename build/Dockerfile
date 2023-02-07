@@ -40,7 +40,14 @@ RUN cd /tmp/emacs \
 # requires are for yum package's name
 RUN apt-get install -y alien
 RUN cd /tmp/emacs \
+        && echo before move \
+        && ls \
         && mv ./$(ls emacs-wslg*.deb) ../ \
+        && echo after move \
+        && ls \
+        && echo moved list \
+        && ls ../ \
+        && echo checkinstall start \
         && checkinstall -y \
         --pkgname=emacs-wslg \
         --pkgversion=29 \
@@ -48,11 +55,14 @@ RUN cd /tmp/emacs \
         --install=no \
         && echo "==================== built for alien ====================" \
         && ls \
+        && echo run alien
         && fakeroot alien $(ls emacs-wslg*.deb) \
         && echo "==================== rpm generated ====================" \
         && ls \
+        && echo remove deb
+        && echo $(ls emacs-wslg*.deb) \
         && rm $(ls emacs-wslg*.deb) \
-        && mv ../$(ls emacs-wslg*.deb) ./
+        && mv $(ls ../emacs-wslg*.deb) ./
 # not supported in debian (requires rpm)
 # # create rpm packages too
 # RUN cd /tmp/emacs \
