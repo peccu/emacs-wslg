@@ -90,7 +90,7 @@ FROM centos:7 as runtime
 # EGLDisplay Initialization failed: EGL_NOT_INITIALIZED
 
 # COPY --from=build /tmp/emacs/src/emacs /usr/local/bin/
-COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs
+COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs/
 RUN yum install -y /tmp/emacs/emacs-wslg-29-2.x86_64.rpm
 
 # for vGPU container
