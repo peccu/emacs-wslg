@@ -120,6 +120,8 @@ docker_exec "$@" || (docker_compose_up-d && docker_exec "$@")
 
 Based version is Emacs 29 (emacs-29 branch from emacs mirror git repo).
 
+WSLg related document is [here](https://github.com/microsoft/wslg/blob/main/samples/container/Containers.md)
+
 ## TODO
 - [ ] emacs server and emacsclient
   - change CMD or ENTRYPOINT into emacs server
