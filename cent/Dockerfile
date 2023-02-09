@@ -27,41 +27,41 @@
 #         --requires="rpm-build, rpmdevtools, which" \
 #         && mv /root/rpmbuild/RPMS/x86_64/checkinstall-1.6.2-1.x86_64.rpm ../
 
-# FROM centos:7 as build
+FROM centos:7 as build
 
-# RUN yum install -y git-core
-# # clone
-# RUN cd /tmp \
-#     && git clone --single-branch \
-#     --branch emacs-29 \
-#     https://github.com/emacs-mirror/emacs.git
+RUN yum install -y git-core
+# clone
+RUN cd /tmp \
+    && git clone --single-branch \
+    --branch emacs-29 \
+    https://github.com/emacs-mirror/emacs.git
 
-# # for emacs
-# RUN yum install -y \
-#         autoconf \
-#         make \
-#         gcc \
-#         texinfo \
-#         gtk3-devel \
-#         webkitgtk4-devel \
-#         gnutls-devel \
-#         ncurses-devel \
-#         libjpeg-turbo-devel \
-#         libpng-devel \
-#         libXpm-devel \
-#         libtiff-devel \
-#         giflib-devel \
-#         sqlite-devel \
-#         librsvg2-devel
+# for emacs
+RUN yum install -y \
+        autoconf \
+        make \
+        gcc \
+        texinfo \
+        gtk3-devel \
+        webkitgtk4-devel \
+        gnutls-devel \
+        ncurses-devel \
+        libjpeg-turbo-devel \
+        libpng-devel \
+        libXpm-devel \
+        libtiff-devel \
+        giflib-devel \
+        sqlite-devel \
+        librsvg2-devel
 
-# # build emacs
-# RUN cd /tmp/emacs \
-#         && ./autogen.sh \
-#         && ./configure \
-#         --with-pgtk \
-#         --with-xwidgets \
-#         && make -j$(nproc) \
-#         && make install
+# build emacs
+RUN cd /tmp/emacs \
+        && ./autogen.sh \
+        && ./configure \
+        --with-pgtk \
+        --with-xwidgets \
+        && make -j$(nproc) \
+        && make install
 
 # # setup checkinstall
 # COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
@@ -82,16 +82,16 @@
 #         # --requires="gtk3, webkitgtk4" \
 # RUN cd /tmp/emacs && ls
 
-FROM peccu/emacs-wslg:buildenv as build
+# FROM peccu/emacs-wslg:buildenv as build
 
-FROM centos:7 as runtime
+# FROM centos:7 as runtime
 
 # libEGL warning: DRI2: failed to open swrast (search paths /usr/lib64/dri)
 # EGLDisplay Initialization failed: EGL_NOT_INITIALIZED
 
 # COPY --from=build /tmp/emacs/src/emacs /usr/local/bin/
-COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs/
-RUN yum install -y /tmp/emacs/emacs-wslg-29-2.x86_64.rpm
+# COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs
+# RUN yum install -y /tmp/emacs/emacs-wslg-29-2.x86_64.rpm
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
