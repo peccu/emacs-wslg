@@ -29,15 +29,9 @@
 
 FROM amazon/aws-cli:latest as build
 
-RUN yum install -y git-core
-# clone
-RUN cd /tmp \
-    && git clone --single-branch \
-    --branch emacs-29 \
-    https://github.com/emacs-mirror/emacs.git
-
 # for emacs
 RUN yum install -y \
+        gzip \
         autoconf \
         make \
         gcc \
@@ -54,6 +48,18 @@ RUN yum install -y \
         sqlite-devel \
         librsvg2-devel
 
+# rpmbuild
+RUN yum install -y \
+        rpm-build \
+        rpmdevtools \
+        && rpmdev-setuptree
+
+RUN cd /tmp \
+    && curl -LO https://github.com/emacs-mirror/emacs/archive/refs/heads/emacs-29.zip \
+    && unzip emacs-29.zip \
+    && rm emacs*.zip \
+    && mv emacs-emacs-29 emacs
+
 # build emacs
 RUN cd /tmp/emacs \
         && ./autogen.sh \
@@ -63,22 +69,14 @@ RUN cd /tmp/emacs \
         && make -j$(nproc) \
         && make install
 
-# rpmbuild
-RUN yum install -y \
-        rpm-build \
-        rpmdevtools \
-        git-core \
-        && rpmdev-setuptree
-ADD emacs.spec.patch /aws/
-RUN git clone https://src.fedoraproject.org/rpms/emacs.git \
+#         && spectool -g -R SPECS/emacs.spec \
+ADD emacs.spec /tmp/
+RUN cd /tmp/emacs \
         && cp ./* /root/rpmbuild/SOURCES/ \
-        && cd /root/rpmbuild/SOURCES/ \
-        && patch < /aws/emacs.spec.patch \
-        && mv emacs.spec ../SPECS/ \
-        && cd .. \
-        && spectool -g -R SPECS/emacs.spec \
-        && sed -ni.bak '/^%changelog/q;p' SPECS/emacs.spec \
+        && cd /root/rpmbuild/ \
+        && mv /tmp/emacs.spec SPECS/ \
         && yum install -y $(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')
+RUN rpmbuild -bb SPECS/emacs.spec
 
 # # setup checkinstall
 # COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
