@@ -27,7 +27,7 @@
 #         --requires="rpm-build, rpmdevtools, which" \
 #         && mv /root/rpmbuild/RPMS/x86_64/checkinstall-1.6.2-1.x86_64.rpm ../
 
-FROM centos:7 as build
+FROM amazon/aws-cli:latest as build
 
 RUN yum install -y git-core
 # clone
@@ -62,6 +62,23 @@ RUN cd /tmp/emacs \
         --with-xwidgets \
         && make -j$(nproc) \
         && make install
+
+# rpmbuild
+RUN yum install -y \
+        rpm-build \
+        rpmdevtools \
+        git-core \
+        && rpmdev-setuptree
+ADD emacs.spec.patch /aws/
+RUN git clone https://src.fedoraproject.org/rpms/emacs.git \
+        && cp ./* /root/rpmbuild/SOURCES/ \
+        && cd /root/rpmbuild/SOURCES/ \
+        && patch < /aws/emacs.spec.patch \
+        && mv emacs.spec ../SPECS/ \
+        && cd .. \
+        && spectool -g -R SPECS/emacs.spec \
+        && sed -ni.bak '/^%changelog/q;p' SPECS/emacs.spec \
+        && yum install -y $(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')
 
 # # setup checkinstall
 # COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
