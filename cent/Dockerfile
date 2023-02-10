@@ -54,29 +54,31 @@ RUN yum install -y \
         rpmdevtools \
         && rpmdev-setuptree
 
-RUN cd /tmp \
-    && curl -LO https://github.com/emacs-mirror/emacs/archive/refs/heads/emacs-29.zip \
-    && unzip emacs-29.zip \
-    && rm emacs*.zip \
-    && mv emacs-emacs-29 emacs
+# RUN cd /tmp \
+#     && curl -LO https://github.com/emacs-mirror/emacs/archive/refs/heads/emacs-29.zip \
+#     && unzip emacs-29.zip \
+#     && rm emacs*.zip \
+#     && mv emacs-emacs-29 emacs
 
-# build emacs
-RUN cd /tmp/emacs \
-        && ./autogen.sh \
-        && ./configure \
-        --with-pgtk \
-        --with-xwidgets \
-        && make -j$(nproc) \
-        && make install
+# # build emacs
+# RUN cd /tmp/emacs \
+#         && ./autogen.sh \
+#         && ./configure \
+#         --with-pgtk \
+#         --with-xwidgets \
+#         && make -j$(nproc) \
+#         && make install
 
-#         && spectool -g -R SPECS/emacs.spec \
 ADD emacs.spec /tmp/
 RUN cd /tmp/emacs \
-        && cp ./* /root/rpmbuild/SOURCES/ \
         && cd /root/rpmbuild/ \
         && mv /tmp/emacs.spec SPECS/ \
-        && yum install -y $(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')
-RUN rpmbuild -bb SPECS/emacs.spec
+        && spectool -g -R SPECS/emacs.spec \
+        && list="$(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')" \
+        && echo $list \
+        && if [ ! -z "$list" ] ; then yum install -y $list; fi
+RUN cd /root/rpmbuild \
+        && rpmbuild -bb SPECS/emacs.spec
 
 # # setup checkinstall
 # COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
@@ -130,13 +132,13 @@ ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 # #     fontconfig \
 # #     fonts-takao \
 # #     && fc-cache -fv
-RUN yum install -y \
-        fontconfig \
-        ipa-gothic-fonts \
-        ipa-mincho-fonts \
-        ipa-pmincho-fonts \
-        ipa-pgothic-fonts \
-        && fc-cache -fv
+# RUN yum install -y \
+#         fontconfig \
+#         ipa-gothic-fonts \
+#         ipa-mincho-fonts \
+#         ipa-pmincho-fonts \
+#         ipa-pgothic-fonts \
+#         && fc-cache -fv
 
 # STOPSIGNAL SIGKILL
 # VOLUME ["/root"]

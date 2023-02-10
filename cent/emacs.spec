@@ -103,7 +103,6 @@ License:       GPLv3+ and GFDL and BSD
 Requires(preun): %{_sbindir}/alternatives
 Requires(posttrans): %{_sbindir}/alternatives
 Requires:      %{name}-filesystem = %{epoch}:%{version}-%{release}
-Recommends:    enchant2
 Provides:      %{name}-el = %{epoch}:%{version}-%{release}
 Obsoletes:     emacs-el < 1:24.3-29
 # transient.el is provided by emacs in lisp/transient.el
@@ -320,8 +319,3 @@ find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
 %attr(0644,root,root) %config(noreplace) %{_datadir}/emacs/site-lisp/default.el
 %attr(0644,root,root) %config %{_datadir}/emacs/site-lisp/site-start.el
 %{pkgconfig}/emacs.pc
-
-%files filesystem
-%dir %{_datadir}/emacs
-%dir %{_datadir}/emacs/site-lisp
-%dir %{_datadir}/emacs/site-lisp/site-start.d
