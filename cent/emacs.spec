@@ -24,30 +24,20 @@ BuildRequires: libjpeg-turbo
 BuildRequires: libtiff-devel
 BuildRequires: libX11-devel
 BuildRequires: libXau-devel
-BuildRequires: libXdmcp-devel
 BuildRequires: libXrender-devel
-BuildRequires: libXt-devel
 BuildRequires: libXpm-devel
 BuildRequires: ncurses-devel
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: zlib-devel
 BuildRequires: gnutls-devel
 BuildRequires: librsvg2-devel
-BuildRequires: m17n-lib-devel
 BuildRequires: libotf-devel
-BuildRequires: libselinux-devel
-BuildRequires: alsa-lib-devel
-BuildRequires: gpm-devel
-BuildRequires: liblockfile-devel
 BuildRequires: libxml2-devel
 BuildRequires: autoconf
 BuildRequires: bzip2
 BuildRequires: cairo
 BuildRequires: texinfo
 BuildRequires: gzip
-BuildRequires: desktop-file-utils
-BuildRequires: libappstream-glib
-BuildRequires: libacl-devel
 BuildRequires: harfbuzz-devel
 BuildRequires: jansson-devel
 BuildRequires: systemd-devel
@@ -57,9 +47,6 @@ BuildRequires: gtk3-devel
 BuildRequires: webkitgtk4-devel
 
 BuildRequires: gnupg2
-
-# For lucid
-BuildRequires: Xaw3d-devel
 
 # for Patch3
 BuildRequires: pkgconfig(systemd)
@@ -72,7 +59,6 @@ BuildRequires: make
 # Emacs requires info for info mode, rhbz#1989264
 Requires:      info
 # Emacs doesn't run without dejavu-sans-mono-fonts, rhbz#732422
-Requires:      desktop-file-utils
 Requires:      dejavu-sans-mono-fonts
 Requires:      libgccjit
 Requires(preun): %{_sbindir}/alternatives
@@ -123,7 +109,9 @@ or emacs-nox.
 %prep
 %setup -q
 
-autoconf
+pwd
+ls
+bash autogen.sh
 
 %ifarch %{ix86}
 %define setarch setarch %{_arch} -R
@@ -132,22 +120,22 @@ autoconf
 %endif
 
 %build
-export CFLAGS="-DMAIL_USE_LOCKF %{build_cflags}"
-%set_build_flags
-
+# export CFLAGS="-DMAIL_USE_LOCKF %{build_cflags}"
+whoami
 # Build GTK+ binary
-mkdir build-gtk && cd build-gtk
-ln -s ../configure .
+# mkdir build-gtk && cd build-gtk
+# ln -s ../configure .
 
 LDFLAGS=-Wl,-z,relro;  export LDFLAGS;
 
-%configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
+# %configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
+./configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
            --with-tiff --with-xpm --with-x-toolkit=gtk3 --with-gpm=no \
            --with-xwidgets --with-modules --with-harfbuzz --with-cairo --with-json \
            --with-native-compilation
 %{setarch} %make_build bootstrap NATIVE_FULL_AOT=1
 %{setarch} %make_build
-cd ..
+# cd ..
 
 # Create pkgconfig file
 cat > emacs.pc << EOF
@@ -170,9 +158,9 @@ cat > macros.emacs << EOF
 EOF
 
 %install
-cd build-gtk
+# cd build-gtk
 %make_install
-cd ..
+# cd ..
 
 # Let alternatives manage the symlink
 rm %{buildroot}%{_bindir}/emacs
@@ -247,12 +235,12 @@ cat el-*-files common-lisp-dir-files > el-filelist
 rm %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document23.svg
 
 # Install all the pdmp with fingerprints
-gtk_pdmp="emacs-$(./build-gtk/src/emacs --fingerprint 2>&1 | sed 's/.* //').pdmp"
-install -p -m 0644 build-gtk/src/emacs.pdmp %{buildroot}%{emacs_libexecdir}/${gtk_pdmp}
+gtk_pdmp="emacs-$(./src/emacs --fingerprint 2>&1 | sed 's/.* //').pdmp"
+install -p -m 0644 src/emacs.pdmp %{buildroot}%{emacs_libexecdir}/${gtk_pdmp}
 
 # Install native compiled Lisp of all builds
-gtk_comp_native_ver=$(ls -1 build-gtk/native-lisp)
-cp -ar build-gtk/native-lisp/${gtk_comp_native_ver} %{buildroot}%{native_lisp}
+gtk_comp_native_ver=$(ls -1 native-lisp)
+cp -ar native-lisp/${gtk_comp_native_ver} %{buildroot}%{native_lisp}
 (TOPDIR=${PWD}
  cd %{buildroot}
  find .%{native_lisp}/${gtk_comp_native_ver} \( -type f -name '*eln' -fprintf $TOPDIR/gtk-eln-filelist "%%%%attr(755,-,-) %%p\n" \) -o \( -type d -fprintf $TOPDIR/gtk-dirs "%%%%dir %%p\n" \)

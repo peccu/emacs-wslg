@@ -69,20 +69,30 @@ RUN yum install -y \
 #         && make -j$(nproc) \
 #         && make install
 
-ADD emacs.spec /tmp/
-RUN cd /root/rpmbuild/ \
-        && mv /tmp/emacs.spec SPECS/ \
-        && spectool -g -R SPECS/emacs.spec \
-	&& cd SOURCES \
-	&& unzip emacs-29.zip \
+RUN yum install -y \
+        jansson-devel \
+        libgccjit-devel \
+        libotf-devel \
+        systemd-devel
+
+RUN cd /root/rpmbuild/SOURCES \
+        && curl -LO https://github.com/emacs-mirror/emacs/archive/refs/heads/emacs-29.zip \
+	&& unzip emacs-29.zip >/dev/null \
 	&& rm emacs-29.zip \
 	&& mv emacs-emacs-29 emacs-29.0 \
-	&& zip -r emacs-29.zip emacs-29.0 \
+	&& zip -r emacs-29.zip emacs-29.0 >/dev/null \
 	&& rm -rf emacs-29.0 \
-	&& cd .. \
-        && list="$(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')" \
-        && echo $list \
-        && if [ ! -z "$list" ] ; then yum install -y $list; fi
+	&& cd ..
+
+        # && cd .. \
+        # && spectool -g -R SPECS/emacs.spec \
+	# && cd SOURCES \
+ADD emacs.spec /root/rpmbuild/SPECS/
+# RUN cd /root/rpmbuild/ \
+#         && echo skip \
+#         && list="$(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')" \
+#         && echo $list \
+#         && if [ ! -z "$list" ] ; then yum install -y $list; fi
 RUN cd /root/rpmbuild \
         && rpmbuild -bb SPECS/emacs.spec
 
