@@ -70,8 +70,7 @@ RUN yum install -y \
 #         && make install
 
 ADD emacs.spec /tmp/
-RUN cd /tmp/emacs \
-        && cd /root/rpmbuild/ \
+RUN cd /root/rpmbuild/ \
         && mv /tmp/emacs.spec SPECS/ \
         && spectool -g -R SPECS/emacs.spec \
         && list="$(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')" \
