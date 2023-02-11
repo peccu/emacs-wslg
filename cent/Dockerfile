@@ -73,11 +73,13 @@ ADD emacs.spec /tmp/
 RUN cd /root/rpmbuild/ \
         && mv /tmp/emacs.spec SPECS/ \
         && spectool -g -R SPECS/emacs.spec \
+	&& cd SOURCES \
 	&& unzip emacs-29.zip \
 	&& rm emacs-29.zip \
 	&& mv emacs-emacs-29 emacs-29.0 \
 	&& zip -r emacs-29.zip emacs-29.0 \
 	&& rm -rf emacs-29.0 \
+	&& cd .. \
         && list="$(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')" \
         && echo $list \
         && if [ ! -z "$list" ] ; then yum install -y $list; fi
