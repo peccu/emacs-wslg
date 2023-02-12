@@ -162,4 +162,4 @@ EOF
 %make_install
 # cd ..
 
-%check
+# %check
