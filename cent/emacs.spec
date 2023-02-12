@@ -166,10 +166,6 @@ EOF
 rm %{buildroot}%{_bindir}/emacs
 touch %{buildroot}%{_bindir}/emacs
 
-# Do not compress the files which implement compression itself (#484830)
-gunzip %{buildroot}%{_datadir}/emacs/%{version}/lisp/jka-compr.el.gz
-gunzip %{buildroot}%{_datadir}/emacs/%{version}/lisp/jka-cmpr-hook.el.gz
-
 # Make sure movemail isn't setgid
 chmod 755 %{buildroot}%{emacs_libexecdir}/movemail
 
