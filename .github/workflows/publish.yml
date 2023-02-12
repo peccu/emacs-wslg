@@ -40,13 +40,22 @@ jobs:
             ${{ github.repository }}
             ghcr.io/${{ github.repository }}
 
-      - name: Build and push Docker images
+      - name: Build and push Docker images (branch name)
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: build
           push: true
           tags: |
             ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push Docker images (latest)
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        if: github.ref_name == 'main'
+        with:
+          context: build
+          push: true
+          tags: |
             ${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:latest
           labels: ${{ steps.meta.outputs.labels }}
