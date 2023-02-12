@@ -162,43 +162,6 @@ EOF
 %make_install
 # cd ..
 
-# Let alternatives manage the symlink
-rm %{buildroot}%{_bindir}/emacs
-touch %{buildroot}%{_bindir}/emacs
-
-# Make sure movemail isn't setgid
-chmod 755 %{buildroot}%{emacs_libexecdir}/movemail
-
-mkdir -p %{buildroot}%{site_lisp}
-
-# This solves bz#474958, "update-directory-autoloads" now finally
-# works the path is different each version, so we'll generate it here
-echo "(setq source-directory \"%{_datadir}/emacs/%{version}/\")" \
- >> %{buildroot}%{site_lisp}/site-start.el
-
-mv %{buildroot}%{_bindir}/{etags,etags.emacs}
-mv %{buildroot}%{_mandir}/man1/{ctags.1.gz,gctags.1.gz}
-mv %{buildroot}%{_mandir}/man1/{etags.1.gz,etags.emacs.1.gz}
-mv %{buildroot}%{_bindir}/{ctags,gctags}
-# BZ 927996
-mv %{buildroot}%{_infodir}/{info.info.gz,info.gz}
-
-mkdir -p %{buildroot}%{site_lisp}/site-start.d
-
-# Default initialization file
-mkdir -p %{buildroot}%{_sysconfdir}/skel
-
-# Install pkgconfig file
-mkdir -p %{buildroot}/%{pkgconfig}
-install -p -m 0644 emacs.pc %{buildroot}/%{pkgconfig}
-
-# Install rpm macro definition file
-mkdir -p %{buildroot}%{_rpmconfigdir}/macros.d
-install -p -m 0644 macros.emacs %{buildroot}%{_rpmconfigdir}/macros.d/
-
-# After everything is installed, remove info dir
-rm -f %{buildroot}%{_infodir}/dir
-
 #
 # Create file lists
 #
