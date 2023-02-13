@@ -21,4 +21,4 @@ function docker_exec(){
 }
 
 # try exec or up and exec if failed
-docker_exec "$@" || (docker_compose_up-d && docker_exec "$@")
+docker_exec "$@" && : || (docker_compose_up-d && docker_exec "$@")
