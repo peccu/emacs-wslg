@@ -1,4 +1,5 @@
 %global _hardened_build 1
+%global __python %{__python3}
 
 # This file is encoded in UTF-8.  -*- coding: utf-8 -*-
 Summary:       GNU Emacs text editor
