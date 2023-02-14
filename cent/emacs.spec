@@ -125,22 +125,16 @@ bash autogen.sh
 %endif
 
 %build
-# export CFLAGS="-DMAIL_USE_LOCKF %{build_cflags}"
 whoami
-# Build GTK+ binary
-# mkdir build-gtk && cd build-gtk
-# ln -s ../configure .
 
 LDFLAGS=-Wl,-z,relro;  export LDFLAGS;
 
-# %configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
 ./configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
            --with-tiff --with-xpm --with-x-toolkit=gtk3 --with-gpm=no \
            --with-xwidgets --with-modules --with-harfbuzz --with-cairo --with-json \
            --with-native-compilation
 %{setarch} %make_build bootstrap NATIVE_FULL_AOT=1
 %{setarch} %make_build
-# cd ..
 
 # Create pkgconfig file
 cat > emacs.pc << EOF
@@ -163,10 +157,7 @@ cat > macros.emacs << EOF
 EOF
 
 %install
-# cd build-gtk
 %make_install
-# cd ..
-
 
 #
 # Create file lists
