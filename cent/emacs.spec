@@ -209,7 +209,7 @@ find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
 
 # %check
 
-%files -f gtk-eln-filelist -f gtk-dirs -f common-filelist -f el-filelist -f info-filelist
+%files -f gtk-eln-filelist -f gtk-dirs -f common-filelist -f el-filelist
 %{_bindir}/emacs-%{version}
 %attr(0755,-,-) %ghost %{_bindir}/emacs
 %{_datadir}/applications/emacs.desktop
