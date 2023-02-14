@@ -18,7 +18,8 @@ RUN apt-get install -y \
     autoconf \
     adwaita-icon-theme-full \
     libwebkit2gtk-4.0-dev \
-    checkinstall
+    checkinstall \
+    porg
 
 # clone
 RUN cd /tmp \
@@ -73,8 +74,9 @@ RUN cd /tmp/emacs \
 #         --install=no
 # RUN cd /tmp/emacs && ls
         # --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
-# porg -lp emacs-wslg --make install
-# porg -f emacs-wslg
+RUN cd /tmp/emacs \
+        && porg -lp emacs-wslg --make install \
+        && porg -f emacs-wslg > installed-files
 # ls /var/lib/porg/emacs-wslg
 
 FROM ubuntu:22.04
@@ -100,6 +102,7 @@ RUN apt-get install -y \
 
 COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
 COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs/
+COPY --from=build /tmp/emacs/installed-files /tmp/emacs/
 # COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs/
 RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
 
