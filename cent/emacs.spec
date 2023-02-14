@@ -167,18 +167,80 @@ EOF
 %make_install
 # cd ..
 
+
+#
+# Create file lists
+#
+rm -f *-filelist {common,el}-*-files
+
+( TOPDIR=${PWD}
+  cd %{buildroot}
+
+  find .%{_datadir}/emacs/%{version}/lisp \
+    .%{_datadir}/emacs/%{version}/lisp/leim \
+    .%{_datadir}/emacs/site-lisp \( -type f -name '*.elc' -fprint $TOPDIR/common-lisp-none-elc-files \) -o \( -type d -fprintf $TOPDIR/common-lisp-dir-files "%%%%dir %%p\n" \) -o \( -name '*.el.gz' -fprint $TOPDIR/el-bytecomped-files -o -fprint $TOPDIR/common-not-comped-files \)
+
+)
+
+# Put the lists together after filtering  ./usr to /usr
+sed -i -e "s|\.%{_prefix}|%{_prefix}|" *-files
+cat common-*-files > common-filelist
+cat el-*-files common-lisp-dir-files > el-filelist
+
+# Remove old icon
+rm %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document23.svg
+
+(TOPDIR=${PWD}
+ cd %{buildroot}
+ find .%{native_lisp} \( -type f -name '*eln' -fprintf $TOPDIR/gtk-eln-filelist "%%%%attr(755,-,-) %%p\n" \) -o \( -type d -fprintf $TOPDIR/gtk-dirs "%%%%dir %%p\n" \)
+)
+
+# remove leading . from filelists
+sed -i -e "s|\.%{native_lisp}|%{native_lisp}|" *-eln-filelist *-dirs
+
+# remove exec permissions from eln files to prevent the debuginfo extractor from
+# trying to extract debuginfo from them
+find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs chmod -x
+
+# ensure native files are newer than byte-code files
+# see: https://bugzilla.redhat.com/show_bug.cgi?id=2157979#c11
+find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
+
+
 # %check
 
-%files
-/usr/bin/*
-/usr/include/*
-/usr/local/lib/emacs/%{version}/native-lisp/*
-/usr/local/lib/systemd/user/*
-/usr/local/libexec/emacs/%{version}/%{_host}/*
-/usr/share/applications/*
-/usr/share/emacs/${version}/*
-/usr/share/emacs/site-lisp/*
-/usr/share/icons/hicolor/*
-/usr/share/info/*
-/usr/share/man/man1/*
-/usr/share/metainfo/*
+%files -f gtk-eln-filelist -f gtk-dirs -f common-filelist -f el-filelist -f info-filelist
+%{_bindir}/emacs-%{version}
+%attr(0755,-,-) %ghost %{_bindir}/emacs
+%{_datadir}/applications/emacs.desktop
+%{_datadir}/applications/emacs-mail.desktop
+%{_metainfodir}/%{name}.metainfo.xml
+%{_datadir}/icons/hicolor/*/apps/emacs.png
+%{_datadir}/icons/hicolor/scalable/apps/emacs.svg
+%{_datadir}/icons/hicolor/scalable/apps/emacs.ico
+%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document.svg
+
+%config(noreplace) %{_sysconfdir}/skel/.emacs
+%{_rpmconfigdir}/macros.d/macros.emacs
+%license etc/COPYING
+%doc doc/NEWS BUGS README
+%{_bindir}/ebrowse
+%{_bindir}/emacsclient
+%{_bindir}/etags.emacs
+%{_bindir}/gctags
+%{_mandir}/man1/ebrowse.1*
+%{_mandir}/man1/emacs.1*
+%{_mandir}/man1/emacsclient.1*
+%{_mandir}/man1/etags.emacs.1*
+%{_mandir}/man1/gctags.1*
+%dir %{_datadir}/emacs/%{version}
+%{_datadir}/emacs/%{version}/etc
+%{_datadir}/emacs/%{version}/site-lisp
+%dir %{emacs_libexecdir}/
+%{emacs_libexecdir}/movemail
+%{emacs_libexecdir}/hexl
+%{emacs_libexecdir}/rcs2log
+%{_userunitdir}/emacs.service
+%attr(0644,root,root) %config(noreplace) %{_datadir}/emacs/site-lisp/default.el
+%attr(0644,root,root) %config %{_datadir}/emacs/site-lisp/site-start.el
+%{pkgconfig}/emacs.pc
