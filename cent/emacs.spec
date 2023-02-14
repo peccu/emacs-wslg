@@ -62,6 +62,10 @@ Requires:      info
 # Emacs doesn't run without dejavu-sans-mono-fonts, rhbz#732422
 Requires:      dejavu-sans-mono-fonts
 Requires:      libgccjit
+Requires:      gtk3
+Requires:      webkitgtk4
+Requires:      giflib
+Requires:      librsvg2
 Requires(preun): %{_sbindir}/alternatives
 Requires(posttrans): %{_sbindir}/alternatives
 Requires:      emacs-common = %{epoch}:%{version}-%{release}
