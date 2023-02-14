@@ -210,20 +210,8 @@ find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
 %{_datadir}/icons/hicolor/scalable/apps/emacs.svg
 %{_datadir}/icons/hicolor/scalable/apps/emacs.ico
 %{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document.svg
-
-%config(noreplace) %{_sysconfdir}/skel/.emacs
-%{_rpmconfigdir}/macros.d/macros.emacs
-%license etc/COPYING
-%doc doc/NEWS BUGS README
 %{_bindir}/ebrowse
 %{_bindir}/emacsclient
-%{_bindir}/etags.emacs
-%{_bindir}/gctags
-%{_mandir}/man1/ebrowse.1*
-%{_mandir}/man1/emacs.1*
-%{_mandir}/man1/emacsclient.1*
-%{_mandir}/man1/etags.emacs.1*
-%{_mandir}/man1/gctags.1*
 %dir %{_datadir}/emacs/%{version}
 %{_datadir}/emacs/%{version}/etc
 %{_datadir}/emacs/%{version}/site-lisp
@@ -231,7 +219,3 @@ find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
 %{emacs_libexecdir}/movemail
 %{emacs_libexecdir}/hexl
 %{emacs_libexecdir}/rcs2log
-%{_userunitdir}/emacs.service
-%attr(0644,root,root) %config(noreplace) %{_datadir}/emacs/site-lisp/default.el
-%attr(0644,root,root) %config %{_datadir}/emacs/site-lisp/site-start.el
-%{pkgconfig}/emacs.pc
