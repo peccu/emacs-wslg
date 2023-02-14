@@ -75,7 +75,7 @@ RUN cd /tmp/emacs \
 # RUN cd /tmp/emacs && ls
         # --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
 RUN cd /tmp/emacs \
-        && porg -lp emacs-wslg --make install \
+        && porg -lp emacs-wslg -- make install \
         && porg -f emacs-wslg > installed-files
 # ls /var/lib/porg/emacs-wslg
 
