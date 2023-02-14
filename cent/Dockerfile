@@ -126,14 +126,16 @@ RUN cd /root/rpmbuild \
 
 # FROM peccu/emacs-wslg:buildenv as build
 
-# FROM centos:7 as runtime
+FROM centos:7 as runtime
 
 # libEGL warning: DRI2: failed to open swrast (search paths /usr/lib64/dri)
 # EGLDisplay Initialization failed: EGL_NOT_INITIALIZED
 
 # COPY --from=build /tmp/emacs/src/emacs /usr/local/bin/
 # COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs
+COPY --from=build /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
 # RUN yum install -y /tmp/emacs/emacs-wslg-29-2.x86_64.rpm
+RUN yum install -y /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm
 
 # for vGPU container
 ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
