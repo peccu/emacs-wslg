@@ -96,12 +96,12 @@ ADD emacs-files.spec /root/rpmbuild/SPECS/
 #         && echo $list \
 #         && if [ ! -z "$list" ] ; then yum install -y $list; fi
 
+RUN cd /root/rpmbuild \
+        && rpmbuild -bb SPECS/emacs.spec
 # RUN cd /root/rpmbuild \
-#         && rpmbuild -bb SPECS/emacs.spec
-RUN cd /root/rpmbuild \
-        && rpmbuild -bb SPECS/emacs-build.spec || echo done
-RUN cd /root/rpmbuild \
-        && rpmbuild -bb SPECS/emacs-files.spec
+#         && rpmbuild -bb SPECS/emacs-build.spec || echo done
+# RUN cd /root/rpmbuild \
+#         && rpmbuild -bb SPECS/emacs-files.spec
 
 
 
