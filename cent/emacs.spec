@@ -5,7 +5,7 @@
 Summary:       GNU Emacs text editor
 Name:          emacs
 Epoch:         1
-Version:       29.0
+Version:       29.0.60
 Release:       1%{?dist}
 License:       GPLv3+ and CC0
 URL:           http://www.gnu.org/software/emacs/
@@ -164,3 +164,17 @@ EOF
 # cd ..
 
 # %check
+
+%files
+/usr/bin/*
+/usr/include/*
+${native_lisp}/*
+${_libdir}/systemd/user/*
+${emacs_libexecdir}/*
+/usr/share/applications/*
+/usr/share/emacs/${version}/*
+/usr/share/emacs/site-lisp/*
+/usr/share/icons/hicolor/*
+/usr/share/info/*
+/usr/share/man/man1/*
+/usr/share/metainfo/*
