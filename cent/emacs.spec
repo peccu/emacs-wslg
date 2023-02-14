@@ -159,63 +159,77 @@ EOF
 %install
 %make_install
 
-#
-# Create file lists
-#
-rm -f *-filelist {common,el}-*-files
+# #
+# # Create file lists
+# #
+# rm -f *-filelist {common,el}-*-files
 
-( TOPDIR=${PWD}
-  cd %{buildroot}
+# ( TOPDIR=${PWD}
+#   cd %{buildroot}
 
-  find .%{_datadir}/emacs/%{version}/lisp \
-    .%{_datadir}/emacs/%{version}/lisp/leim \
-    .%{_datadir}/emacs/site-lisp \( -type f -name '*.elc' -fprint $TOPDIR/common-lisp-none-elc-files \) -o \( -type d -fprintf $TOPDIR/common-lisp-dir-files "%%%%dir %%p\n" \) -o \( -name '*.el.gz' -fprint $TOPDIR/el-bytecomped-files -o -fprint $TOPDIR/common-not-comped-files \)
+#   find .%{_datadir}/emacs/%{version}/lisp \
+#     .%{_datadir}/emacs/%{version}/lisp/leim \
+#     .%{_datadir}/emacs/site-lisp \( -type f -name '*.elc' -fprint $TOPDIR/common-lisp-none-elc-files \) -o \( -type d -fprintf $TOPDIR/common-lisp-dir-files "%%%%dir %%p\n" \) -o \( -name '*.el.gz' -fprint $TOPDIR/el-bytecomped-files -o -fprint $TOPDIR/common-not-comped-files \)
 
-)
+# )
 
-# Put the lists together after filtering  ./usr to /usr
-sed -i -e "s|\.%{_prefix}|%{_prefix}|" *-files
-cat common-*-files > common-filelist
-cat el-*-files common-lisp-dir-files > el-filelist
+# # Put the lists together after filtering  ./usr to /usr
+# sed -i -e "s|\.%{_prefix}|%{_prefix}|" *-files
+# cat common-*-files > common-filelist
+# cat el-*-files common-lisp-dir-files > el-filelist
 
-# Remove old icon
-rm %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document23.svg
+# # Remove old icon
+# rm %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document23.svg
 
-(TOPDIR=${PWD}
- cd %{buildroot}
- find .%{native_lisp} \( -type f -name '*eln' -fprintf $TOPDIR/gtk-eln-filelist "%%%%attr(755,-,-) %%p\n" \) -o \( -type d -fprintf $TOPDIR/gtk-dirs "%%%%dir %%p\n" \)
-)
+# (TOPDIR=${PWD}
+#  cd %{buildroot}
+#  find .%{native_lisp} \( -type f -name '*eln' -fprintf $TOPDIR/gtk-eln-filelist "%%%%attr(755,-,-) %%p\n" \) -o \( -type d -fprintf $TOPDIR/gtk-dirs "%%%%dir %%p\n" \)
+# )
 
-# remove leading . from filelists
-sed -i -e "s|\.%{native_lisp}|%{native_lisp}|" *-eln-filelist *-dirs
+# # remove leading . from filelists
+# sed -i -e "s|\.%{native_lisp}|%{native_lisp}|" *-eln-filelist *-dirs
 
-# remove exec permissions from eln files to prevent the debuginfo extractor from
-# trying to extract debuginfo from them
-find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs chmod -x
+# # remove exec permissions from eln files to prevent the debuginfo extractor from
+# # trying to extract debuginfo from them
+# find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs chmod -x
 
-# ensure native files are newer than byte-code files
-# see: https://bugzilla.redhat.com/show_bug.cgi?id=2157979#c11
-find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
+# # ensure native files are newer than byte-code files
+# # see: https://bugzilla.redhat.com/show_bug.cgi?id=2157979#c11
+# find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
 
 
-# %check
+# # %check
 
-%files -f gtk-eln-filelist -f gtk-dirs -f common-filelist -f el-filelist
-%{_bindir}/emacs-%{version}
-%attr(0755,-,-) %ghost %{_bindir}/emacs
-%{_datadir}/applications/emacs.desktop
-%{_datadir}/applications/emacs-mail.desktop
-%{_metainfodir}/%{name}.metainfo.xml
-%{_datadir}/icons/hicolor/*/apps/emacs.png
-%{_datadir}/icons/hicolor/scalable/apps/emacs.svg
-%{_datadir}/icons/hicolor/scalable/apps/emacs.ico
-%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document.svg
-%{_bindir}/ebrowse
-%{_bindir}/emacsclient
-%dir %{_datadir}/emacs/%{version}
-%{_datadir}/emacs/%{version}/etc
-%{_datadir}/emacs/%{version}/site-lisp
-%dir %{emacs_libexecdir}/
-%{emacs_libexecdir}/movemail
-%{emacs_libexecdir}/hexl
-%{emacs_libexecdir}/rcs2log
+# %files -f gtk-eln-filelist -f gtk-dirs -f common-filelist -f el-filelist
+# %{_bindir}/emacs-%{version}
+# %attr(0755,-,-) %ghost %{_bindir}/emacs
+# %{_datadir}/applications/emacs.desktop
+# %{_datadir}/applications/emacs-mail.desktop
+# %{_metainfodir}/%{name}.metainfo.xml
+# %{_datadir}/icons/hicolor/*/apps/emacs.png
+# %{_datadir}/icons/hicolor/scalable/apps/emacs.svg
+# %{_datadir}/icons/hicolor/scalable/apps/emacs.ico
+# %{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document.svg
+# %{_bindir}/ebrowse
+# %{_bindir}/emacsclient
+# %dir %{_datadir}/emacs/%{version}
+# %{_datadir}/emacs/%{version}/etc
+# %{_datadir}/emacs/%{version}/site-lisp
+# %dir %{emacs_libexecdir}/
+# %{emacs_libexecdir}/movemail
+# %{emacs_libexecdir}/hexl
+# %{emacs_libexecdir}/rcs2log
+
+%files
+/usr/local/bin/*
+/usr/local/include/emacs-module.h
+/usr/local/lib/emacs/29.0.60/native-lisp/*
+/usr/local/libexec/emacs/29.0.60/x86_64-pc-linux-gnu/*
+/usr/local/lib/systemd/user/emacs.service
+/usr/local/share/applications/*
+/usr/local/share/emacs/29.0.60/*
+/usr/local/share/emacs/site-lisp/subdirs.el
+/usr/local/share/icons/hicolor/*
+/usr/local/share/info/*
+/usr/local/share/man/man1/*
+/usr/local/share/metainfo/emacs.metainfo.xml
