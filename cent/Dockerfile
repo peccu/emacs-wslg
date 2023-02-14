@@ -88,13 +88,22 @@ RUN cd /root/rpmbuild/SOURCES \
         # && spectool -g -R SPECS/emacs.spec \
         # && cd SOURCES \
 ADD emacs.spec /root/rpmbuild/SPECS/
+ADD emacs-build.spec /root/rpmbuild/SPECS/
+ADD emacs-files.spec /root/rpmbuild/SPECS/
 # RUN cd /root/rpmbuild/ \
 #         && echo skip \
 #         && list="$(rpmbuild -bb SPECS/emacs.spec 2>&1 | grep 'is needed by' | awk '{print $1}')" \
 #         && echo $list \
 #         && if [ ! -z "$list" ] ; then yum install -y $list; fi
+
+# RUN cd /root/rpmbuild \
+#         && rpmbuild -bb SPECS/emacs.spec
 RUN cd /root/rpmbuild \
-        && rpmbuild -bb SPECS/emacs.spec
+        && rpmbuild -bb SPECS/emacs-build.spec || echo done
+RUN cd /root/rpmbuild \
+        && rpmbuild -bb SPECS/emacs-files.spec
+
+
 
 # # setup checkinstall
 # COPY --from=checkinstall /tmp/checkinstall-1.6.2-1.x86_64.rpm /tmp
