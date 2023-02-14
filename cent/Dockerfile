@@ -79,9 +79,9 @@ RUN cd /root/rpmbuild/SOURCES \
         && curl -LO https://github.com/emacs-mirror/emacs/archive/refs/heads/emacs-29.zip \
         && unzip emacs-29.zip >/dev/null \
         && rm emacs-29.zip \
-        && mv emacs-emacs-29 emacs-29.0 \
-        && zip -r emacs-29.zip emacs-29.0 >/dev/null \
-        && rm -rf emacs-29.0 \
+        && mv emacs-emacs-29 emacs-29.0.60 \
+        && zip -r emacs-29.zip emacs-29.0.60 >/dev/null \
+        && rm -rf emacs-29.0.60 \
         && cd ..
 
         # && cd .. \
