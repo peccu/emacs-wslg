@@ -172,9 +172,9 @@ EOF
 %files
 /usr/bin/*
 /usr/include/*
-${native_lisp}/*
-${_libdir}/systemd/user/*
-${emacs_libexecdir}/*
+/usr/local/lib/emacs/%{version}/native-lisp/*
+/usr/local/lib/systemd/user/*
+/usr/local/libexec/emacs/%{version}/%{_host}/*
 /usr/share/applications/*
 /usr/share/emacs/${version}/*
 /usr/share/emacs/site-lisp/*
