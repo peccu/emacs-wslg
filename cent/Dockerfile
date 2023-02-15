@@ -55,7 +55,7 @@ RUN cd /root/rpmbuild \
 
 FROM amazon/aws-cli:latest as runtime-amazon
 
-COPY --from=build /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
+COPY --from=build-amazon /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
 RUN yum install -y /tmp/emacs/emacs-29.0.60-1.amzn2.x86_64.rpm
 
 # for vGPU container
@@ -65,6 +65,9 @@ ENV LD_LIBRARY_PATH=/usr/lib/wsl/lib
 
 FROM centos:7 as build-centos
 
+# for libgccjit
+# cf. https://stackoverflow.com/a/67212990
+RUN yum install -y centos-release-scl
 # for emacs
 RUN yum install -y \
         autoconf \
@@ -75,7 +78,7 @@ RUN yum install -y \
         gzip \
         jansson-devel \
         libXpm-devel \
-        libgccjit-devel \
+        devtoolset-9-libgccjit-devel \
         libjpeg-turbo-devel \
         libotf-devel \
         libpng-devel \
@@ -117,16 +120,18 @@ ADD emacs.spec /root/rpmbuild/SPECS/
 
 RUN cd /root/rpmbuild \
         && rpmbuild -bb SPECS/emacs.spec
+RUN ls /root/rpmbuild/RPMS/x86_64/
 
 
 
 
 
+FROM centos:7 as runtime
 
+COPY --from=build-amazon /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
+COPY --from=build-centos /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.el7.x86_64.rpm /tmp/emacs/
+RUN yum install -y /tmp/emacs/emacs-29.0.60-1.el7.x86_64.rpm
 
-
-
-# FROM centos:7 as runtime
 # COPY --from=build /tmp/emacs/src/emacs /usr/local/bin/
 # COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs
 # RUN yum install -y /tmp/emacs/emacs-wslg-29-2.x86_64.rpm

@@ -32,7 +32,12 @@ BuildRequires: libX11-devel
 BuildRequires: libXau-devel
 BuildRequires: libXpm-devel
 BuildRequires: libXrender-devel
+%if "%{dist}" == ".amzn2"
 BuildRequires: libgccjit-devel
+%endif
+%if "%{dist}" == ".el7"
+BuildRequires: devtoolset-9-libgccjit-devel
+%endif
 BuildRequires: libjpeg-turbo
 BuildRequires: libjpeg-turbo-devel
 BuildRequires: libotf-devel
@@ -95,6 +100,12 @@ bash autogen.sh
 whoami
 
 LDFLAGS=-Wl,-z,relro;  export LDFLAGS;
+
+%if "%{dist}" == ".el7"
+source /opt/rh/devtoolset-9/enable
+PKG_CONFIG_PATH=/usr/lib64/pkgconfig:$PKG_CONFIG_PATH
+export PKG_CONFIG_PATH
+%endif
 
 ./configure --with-dbus --with-gif --with-jpeg --with-png --with-rsvg \
            --with-tiff --with-xpm --with-x-toolkit=gtk3 --with-gpm=no \
