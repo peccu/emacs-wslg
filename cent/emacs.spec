@@ -11,51 +11,46 @@ License:       GPLv3+ and CC0
 URL:           http://www.gnu.org/software/emacs/
 Source0:       https://github.com/emacs-mirror/emacs/archive/refs/heads/emacs-29.zip
 
-BuildRequires: gcc
 BuildRequires: atk-devel
-BuildRequires: cairo-devel
-BuildRequires: freetype-devel
-BuildRequires: fontconfig-devel
-BuildRequires: dbus-devel
-BuildRequires: giflib-devel
-BuildRequires: glibc-devel
-BuildRequires: libpng-devel
-BuildRequires: libjpeg-turbo-devel
-BuildRequires: libjpeg-turbo
-BuildRequires: libtiff-devel
-BuildRequires: libX11-devel
-BuildRequires: libXau-devel
-BuildRequires: libXrender-devel
-BuildRequires: libXpm-devel
-BuildRequires: ncurses-devel
-BuildRequires: xorg-x11-proto-devel
-BuildRequires: zlib-devel
-BuildRequires: gnutls-devel
-BuildRequires: librsvg2-devel
-BuildRequires: libotf-devel
-BuildRequires: libxml2-devel
 BuildRequires: autoconf
 BuildRequires: bzip2
 BuildRequires: cairo
-BuildRequires: texinfo
+BuildRequires: cairo-devel
+BuildRequires: dbus-devel
+BuildRequires: fontconfig-devel
+BuildRequires: freetype-devel
+BuildRequires: gcc
+BuildRequires: giflib-devel
+BuildRequires: glibc-devel
+BuildRequires: gnupg2
+BuildRequires: gnutls-devel
+BuildRequires: gtk3-devel
 BuildRequires: gzip
 BuildRequires: harfbuzz-devel
 BuildRequires: jansson-devel
-BuildRequires: systemd-devel
+BuildRequires: libX11-devel
+BuildRequires: libXau-devel
+BuildRequires: libXpm-devel
+BuildRequires: libXrender-devel
 BuildRequires: libgccjit-devel
-
-BuildRequires: gtk3-devel
+BuildRequires: libjpeg-turbo
+BuildRequires: libjpeg-turbo-devel
+BuildRequires: libotf-devel
+BuildRequires: libpng-devel
+BuildRequires: librsvg2-devel
+BuildRequires: libtiff-devel
+BuildRequires: libxml2-devel
+BuildRequires: make
+BuildRequires: ncurses-devel
+BuildRequires: systemd-devel
+BuildRequires: texinfo
 BuildRequires: webkitgtk4-devel
-
-BuildRequires: gnupg2
-
-# for Patch3
-BuildRequires: pkgconfig(systemd)
+BuildRequires: xorg-x11-proto-devel
+BuildRequires: zlib-devel
 
 %ifarch %{ix86}
 BuildRequires: util-linux
 %endif
-BuildRequires: make
 
 # Emacs requires info for info mode, rhbz#1989264
 Requires:      info
@@ -66,10 +61,7 @@ Requires:      gtk3
 Requires:      webkitgtk4
 Requires:      giflib
 Requires:      librsvg2
-Requires(preun): %{_sbindir}/alternatives
-Requires(posttrans): %{_sbindir}/alternatives
-Requires:      emacs-common = %{epoch}:%{version}-%{release}
-Provides:      emacs(bin) = %{epoch}:%{version}-%{release}
+Requires:      mesa-libGLw
 
 %define site_lisp %{_datadir}/emacs/site-lisp
 %define site_start_d %{site_lisp}/site-start.d
@@ -85,31 +77,6 @@ language (elisp), and the capability to read mail, news, and more
 without leaving the editor.
 
 This package provides an emacs binary with support for X windows.
-
-%package common
-Summary:       Emacs common files
-# The entire source code is GPLv3+ except lib-src/etags.c which is
-# also BSD.  Manual (info) is GFDL.
-License:       GPLv3+ and GFDL and BSD
-Requires(preun): %{_sbindir}/alternatives
-Requires(posttrans): %{_sbindir}/alternatives
-Requires:      %{name}-filesystem = %{epoch}:%{version}-%{release}
-Provides:      %{name}-el = %{epoch}:%{version}-%{release}
-Obsoletes:     emacs-el < 1:24.3-29
-# transient.el is provided by emacs in lisp/transient.el
-Provides:      emacs-transient = 0.3.7
-# the existing emacs-transient package is obsoleted by emacs 28+, last package
-# version as of the release of emacs 28.1 is obsoleted
-Obsoletes:     emacs-transient < 0.3.0-4
-
-%description common
-Emacs is a powerful, customizable, self-documenting, modeless text
-editor. Emacs contains special code editing features, a scripting
-language (elisp), and the capability to read mail, news, and more
-without leaving the editor.
-
-This package contains all the common files needed by emacs, emacs-lucid
-or emacs-nox.
 
 %prep
 %setup -q
@@ -136,98 +103,17 @@ LDFLAGS=-Wl,-z,relro;  export LDFLAGS;
 %{setarch} %make_build bootstrap NATIVE_FULL_AOT=1
 %{setarch} %make_build
 
-# Create pkgconfig file
-cat > emacs.pc << EOF
-sitepkglispdir=%{site_lisp}
-sitestartdir=%{site_start_d}
-
-Name: emacs
-Description: GNU Emacs text editor
-Version: %{epoch}:%{version}
-EOF
-
-# Create macros.emacs RPM macro file
-cat > macros.emacs << EOF
-%%_emacs_version %{version}
-%%_emacs_ev %{?epoch:%{epoch}:}%{version}
-%%_emacs_evr %{?epoch:%{epoch}:}%{version}-%{release}
-%%_emacs_sitelispdir %{site_lisp}
-%%_emacs_sitestartdir %{site_start_d}
-%%_emacs_bytecompile /usr/bin/emacs -batch --no-init-file --no-site-file --eval '(progn (setq load-path (cons "." load-path)))' -f batch-byte-compile
-EOF
-
 %install
 %make_install
-
-# #
-# # Create file lists
-# #
-# rm -f *-filelist {common,el}-*-files
-
-# ( TOPDIR=${PWD}
-#   cd %{buildroot}
-
-#   find .%{_datadir}/emacs/%{version}/lisp \
-#     .%{_datadir}/emacs/%{version}/lisp/leim \
-#     .%{_datadir}/emacs/site-lisp \( -type f -name '*.elc' -fprint $TOPDIR/common-lisp-none-elc-files \) -o \( -type d -fprintf $TOPDIR/common-lisp-dir-files "%%%%dir %%p\n" \) -o \( -name '*.el.gz' -fprint $TOPDIR/el-bytecomped-files -o -fprint $TOPDIR/common-not-comped-files \)
-
-# )
-
-# # Put the lists together after filtering  ./usr to /usr
-# sed -i -e "s|\.%{_prefix}|%{_prefix}|" *-files
-# cat common-*-files > common-filelist
-# cat el-*-files common-lisp-dir-files > el-filelist
-
-# # Remove old icon
-# rm %{buildroot}%{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document23.svg
-
-# (TOPDIR=${PWD}
-#  cd %{buildroot}
-#  find .%{native_lisp} \( -type f -name '*eln' -fprintf $TOPDIR/gtk-eln-filelist "%%%%attr(755,-,-) %%p\n" \) -o \( -type d -fprintf $TOPDIR/gtk-dirs "%%%%dir %%p\n" \)
-# )
-
-# # remove leading . from filelists
-# sed -i -e "s|\.%{native_lisp}|%{native_lisp}|" *-eln-filelist *-dirs
-
-# # remove exec permissions from eln files to prevent the debuginfo extractor from
-# # trying to extract debuginfo from them
-# find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs chmod -x
-
-# # ensure native files are newer than byte-code files
-# # see: https://bugzilla.redhat.com/show_bug.cgi?id=2157979#c11
-# find %{buildroot}%{_libdir}/ -name '*eln' -type f | xargs touch
-
-
-# # %check
-
-# %files -f gtk-eln-filelist -f gtk-dirs -f common-filelist -f el-filelist
-# %{_bindir}/emacs-%{version}
-# %attr(0755,-,-) %ghost %{_bindir}/emacs
-# %{_datadir}/applications/emacs.desktop
-# %{_datadir}/applications/emacs-mail.desktop
-# %{_metainfodir}/%{name}.metainfo.xml
-# %{_datadir}/icons/hicolor/*/apps/emacs.png
-# %{_datadir}/icons/hicolor/scalable/apps/emacs.svg
-# %{_datadir}/icons/hicolor/scalable/apps/emacs.ico
-# %{_datadir}/icons/hicolor/scalable/mimetypes/emacs-document.svg
-# %{_bindir}/ebrowse
-# %{_bindir}/emacsclient
-# %dir %{_datadir}/emacs/%{version}
-# %{_datadir}/emacs/%{version}/etc
-# %{_datadir}/emacs/%{version}/site-lisp
-# %dir %{emacs_libexecdir}/
-# %{emacs_libexecdir}/movemail
-# %{emacs_libexecdir}/hexl
-# %{emacs_libexecdir}/rcs2log
 
 %files
 /usr/local/bin/*
 /usr/local/include/emacs-module.h
-/usr/local/lib/emacs/29.0.60/native-lisp/*
-/usr/local/libexec/emacs/29.0.60/x86_64-pc-linux-gnu/*
+/usr/local/lib/emacs/%{version}/native-lisp/*
+/usr/local/libexec/emacs/%{version}/x86_64-pc-linux-gnu/*
 /usr/local/lib/systemd/user/emacs.service
 /usr/local/share/applications/*
-/usr/local/share/emacs/29.0.60/*
+/usr/local/share/emacs/%{version}/*
 /usr/local/share/emacs/site-lisp/subdirs.el
 /usr/local/share/icons/hicolor/*
 /usr/local/share/info/*
