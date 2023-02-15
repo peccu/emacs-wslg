@@ -36,6 +36,7 @@ BuildRequires: libXrender-devel
 BuildRequires: libgccjit-devel
 %endif
 %if "%{dist}" == ".el7"
+# needs `yum install -y centos-release-scl`
 BuildRequires: devtoolset-9-libgccjit-devel
 %endif
 BuildRequires: libjpeg-turbo
@@ -61,7 +62,12 @@ BuildRequires: util-linux
 Requires:      info
 # Emacs doesn't run without dejavu-sans-mono-fonts, rhbz#732422
 Requires:      dejavu-sans-mono-fonts
-Requires:      libgccjit
+%if "%{dist}" == ".amzn2"
+Requires: libgccjit-devel
+%endif
+%if "%{dist}" == ".el7"
+Requires: devtoolset-9-libgccjit-devel
+%endif
 Requires:      gtk3
 Requires:      webkitgtk4
 Requires:      giflib
