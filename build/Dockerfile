@@ -18,27 +18,43 @@ RUN apt-get install -y \
     autoconf \
     adwaita-icon-theme-full \
     libwebkit2gtk-4.0-dev \
-    checkinstall
+    porg
 
 # clone
 RUN cd /tmp \
     && git clone --single-branch \
     --branch emacs-29 \
     https://github.com/emacs-mirror/emacs.git
+# build
 RUN cd /tmp/emacs \
     && ./autogen.sh \
     && ./configure \
         --with-pgtk \
         --with-xwidgets \
-    && make -j8 \
-    && checkinstall -y \
-        --pkgname=emacs-wslg \
-        --pkgversion=29 \
-        --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
-        --install=no
-# porg -lp emacs-wslg --make install
-# porg -f emacs-wslg
-# ls /var/lib/porg/emacs-wslg
+    && make -j$(nproc)
+# install
+RUN cd /tmp/emacs \
+        && porg -lp emacs-wslg -- make install \
+        && porg -f emacs-wslg > installed-files
+        # && ls /var/lib/porg/emacs-wslg
+# build deb
+# https://www.internalpointers.com/post/build-binary-deb-package-practical-guide
+# https://stackoverflow.com/questions/8003739/is-there-a-way-to-automatically-determine-dependencies-when-setting-up-a-dpkg-co
+ADD control /tmp/emacs-wslg_29.0.60-1_amd64/debian/
+ADD changelog /tmp/emacs-wslg_29.0.60-1_amd64/debian/
+RUN cat /tmp/emacs/installed-files \
+    | tail -n +2 \
+    | xargs -I{} dirname {} \
+    | sort -u \
+    | xargs -I{} mkdir -p /tmp/emacs-wslg_29.0.60-1_amd64/debian/tmp{} \
+    && cat /tmp/emacs/installed-files \
+    | tail -n +2 \
+    | xargs -I{} cp {} /tmp/emacs-wslg_29.0.60-1_amd64/debian/tmp{} \
+    && cd /tmp/emacs-wslg_29.0.60-1_amd64 \
+    && mkdir debian/tmp/DEBIAN \
+    && dpkg-shlibdeps debian/tmp/usr/local/bin/emacs \
+    && dpkg-gencontrol -v29.0.60 \
+    && dpkg-deb --build --root-owner-group debian/tmp /tmp
 
 FROM ubuntu:22.04
 
@@ -61,8 +77,8 @@ RUN apt-get install -y \
     fonts-takao \
     && fc-cache -fv
 
-COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/emacs-wslg_29-1_amd64.deb
-RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb \
+COPY --from=build /tmp/emacs/emacs-wslg_29.0.60_amd64.deb /tmp/emacs/
+RUN apt install -y /tmp/emacs/emacs-wslg_29.0.60_amd64.deb \
     && rm -rf /tmp/emacs
 
 STOPSIGNAL SIGKILL
