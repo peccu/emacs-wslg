@@ -18,7 +18,6 @@ RUN apt-get install -y \
     autoconf \
     adwaita-icon-theme-full \
     libwebkit2gtk-4.0-dev \
-    checkinstall \
     porg
 
 # clone
@@ -26,58 +25,36 @@ RUN cd /tmp \
     && git clone --single-branch \
     --branch emacs-29 \
     https://github.com/emacs-mirror/emacs.git
+# build
 RUN cd /tmp/emacs \
     && ./autogen.sh \
     && ./configure \
         --with-pgtk \
         --with-xwidgets \
-    && make -j$(nproc) \
-    && checkinstall -y \
-        --pkgname=emacs-wslg \
-        --pkgversion=29 \
-        --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
-        --install=no
-# build deb for rpm (with alien)
-# requires are for yum package's name
-RUN apt-get install -y alien
-RUN cd /tmp/emacs \
-        && echo before move \
-        && ls \
-        && mv ./$(ls emacs-wslg*.deb) ../ \
-        && echo after move \
-        && ls \
-        && echo moved list \
-        && ls ../ \
-        && echo checkinstall start \
-        && checkinstall -y \
-        --pkgname=emacs-wslg \
-        --pkgversion=29 \
-        --requires="gtk3, webkitgtk4, giflib, librsvg2" \
-        --install=no \
-        && echo "==================== built for alien ====================" \
-        && ls \
-        && echo run alien \
-        && fakeroot alien --to-rpm $(ls emacs-wslg*.deb) \
-        && echo "==================== rpm generated ====================" \
-        && ls \
-        && echo remove deb \
-        && echo $(ls emacs-wslg*.deb) \
-        && rm $(ls emacs-wslg*.deb) \
-        && mv $(ls ../emacs-wslg*.deb) ./
-# not supported in debian (requires rpm)
-# # create rpm packages too
-# RUN cd /tmp/emacs \
-#     && checkinstall -y \
-#         --type=rpm \
-#         --pkgname=emacs-wslg \
-#         --pkgversion=29 \
-#         --install=no
-# RUN cd /tmp/emacs && ls
-        # --requires="libgtk-3-0, libgif7, libwebkit2gtk-4.0-37" \
+    && make -j$(nproc)
+# install
 RUN cd /tmp/emacs \
         && porg -lp emacs-wslg -- make install \
         && porg -f emacs-wslg > installed-files
-# ls /var/lib/porg/emacs-wslg
+        # && ls /var/lib/porg/emacs-wslg
+# build deb
+# https://www.internalpointers.com/post/build-binary-deb-package-practical-guide
+# https://stackoverflow.com/questions/8003739/is-there-a-way-to-automatically-determine-dependencies-when-setting-up-a-dpkg-co
+ADD control /tmp/emacs-wslg_29.0.60-1_amd64/debian/
+ADD changelog /tmp/emacs-wslg_29.0.60-1_amd64/debian/
+RUN cat /tmp/emacs/installed-files \
+    | tail -n +2 \
+    | xargs -I{} dirname {} \
+    | sort -u \
+    | xargs -I{} mkdir -p /tmp/emacs-wslg_29.0.60-1_amd64/debian/tmp{} \
+    && cat /tmp/emacs/installed-files \
+    | tail -n +2 \
+    | xargs -I{} cp {} /tmp/emacs-wslg_29.0.60-1_amd64/debian/tmp{} \
+    && cd /tmp/emacs-wslg_29.0.60-1_amd64 \
+    && mkdir debian/tmp/DEBIAN \
+    && dpkg-shlibdeps debian/tmp/usr/local/bin/emacs \
+    && dpkg-gencontrol -v29.0.60 \
+    && dpkg-deb --build --root-owner-group debian/tmp /tmp
 
 
 FROM amazon/aws-cli:latest as build-amazon
@@ -158,14 +135,9 @@ RUN apt-get install -y \
     fonts-takao \
     && fc-cache -fv
 
-COPY --from=build /tmp/emacs/emacs-wslg_29-1_amd64.deb /tmp/emacs/
-COPY --from=build /tmp/emacs/emacs-wslg-29-2.x86_64.rpm /tmp/emacs/
-COPY --from=build /tmp/emacs/installed-files /tmp/emacs/
+COPY --from=build /tmp/emacs/emacs-wslg_29.0.60_amd64.deb /tmp/emacs/
 COPY --from=build-amazon /root/rpmbuild/RPMS/x86_64/emacs-29.0.60-1.amzn2.x86_64.rpm /tmp/emacs/
 
-
-
-# COPY --from=build /tmp/emacs/emacs-wslg-29-1.x86_64.rpm /tmp/emacs/
 RUN apt install -y /tmp/emacs/emacs-wslg_29-1_amd64.deb
 
 STOPSIGNAL SIGKILL
