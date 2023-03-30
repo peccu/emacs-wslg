@@ -1,0 +1,7 @@
+Source: emacs-wlsg
+Maintainer: peccu <peccul+github@gmail.com>
+
+Package: emacs-wlsg
+Architecture: amd64
+Description: xwidget enabled Emacs
+Depends: ${shlibs:Depends}
