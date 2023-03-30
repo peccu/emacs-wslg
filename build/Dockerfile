@@ -77,7 +77,7 @@ RUN apt-get install -y \
     fonts-takao \
     && fc-cache -fv
 
-COPY --from=build /tmp/emacs/emacs-wslg_29.0.60_amd64.deb /tmp/emacs/
+COPY --from=build /tmp/emacs-wslg_29.0.60_amd64.deb /tmp/emacs/
 RUN apt install -y /tmp/emacs/emacs-wslg_29.0.60_amd64.deb \
     && rm -rf /tmp/emacs
 
